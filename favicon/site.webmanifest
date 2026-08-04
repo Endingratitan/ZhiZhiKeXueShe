@@ -1,6 +1,6 @@
 {
-  "name": "MyWebSite",
-  "short_name": "MySite",
+  "name": "ZhiZhiKeXueShe_WebApp",
+  "short_name": "ZhiZhi",
   "icons": [
     {
       "src": "/web-app-manifest-192x192.png",
