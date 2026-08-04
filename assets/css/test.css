@@ -1,0 +1,11 @@
+.testHeader {
+    background-color: deepskyblue;
+    font-size: 64px;
+    color: white;
+    text-align: center;
+}
+
+.testEng {
+    font-family: 'Times New Roman', Times, serif;
+    font-size: 28px;
+}
