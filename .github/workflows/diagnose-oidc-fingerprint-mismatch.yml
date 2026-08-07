@@ -1,0 +1,51 @@
+name: Diagnose OIDC Fingerprint Mismatch
+
+on:
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get actual GitHub OIDC fingerprints
+        run: |
+          echo "=== Fetching GitHub OIDC configuration ==="
+          curl -s https://token.actions.githubusercontent.com/.well-known/openid-configuration | jq .
+          echo ""
+          echo "=== Downloading JWKS ==="
+          JWKS_URI=$(curl -s https://token.actions.githubusercontent.com/.well-known/openid-configuration | jq -r .jwks_uri)
+          echo "JWKS URI: $JWKS_URI"
+          curl -s "$JWKS_URI" | jq .
+          echo ""
+          echo "=== Extracting x5t fingerprints ==="
+          curl -s "$JWKS_URI" | jq -r '.keys[].x5t // empty'
+          echo ""
+          echo "Expected fingerprint for GitHub Actions public cloud: 6938fd4d98bab03faodb97b34396831e3780aea1"
+
+      - name: Get this workflow's OIDC token and decode header
+        run: |
+          JWT=$(curl -s -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+            "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=sts.aliyuncs.com" | jq -r .value)
+          echo "=== Decoded JWT header ==="
+          echo "$JWT" | cut -d. -f1 | base64 -d 2>/dev/null | jq . || echo "Cannot decode, fallback:"
+          echo "$JWT" | cut -d. -f1 | base64 -d 2>/dev/null
+          echo ""
+          echo "The 'x5t' field in header MUST match one of the fingerprints above."
+
+      - name: (Optional) Attempt STS call to show detailed error
+        continue-on-error: true
+        run: |
+          ALIYUN_ROLE_ARN="${{ secrets.ALIYUN_ROLE_ARN }}"
+          OIDC_PROVIDER_ARN="${{ secrets.ALIYUN_OIDC_ARN }}"
+          if [[ -z "$ALIYUN_ROLE_ARN" || -z "$OIDC_PROVIDER_ARN" ]]; then
+            echo "Secrets not set, skipping STS call."
+            exit 0
+          fi
+          JWT=$(curl -s -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+            "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=sts.aliyuncs.com" | jq -r .value)
+          echo "Calling STS AssumeRoleWithOIDC..."
+          curl -s "https://sts.aliyuncs.com/?Action=AssumeRoleWithOIDC&RoleArn=${ALIYUN_ROLE_ARN}&OIDCProviderArn=${OIDC_PROVIDER_ARN}&OIDCToken=${JWT}&RoleSessionName=debug&Format=JSON&Version=2015-04-01" | jq .
