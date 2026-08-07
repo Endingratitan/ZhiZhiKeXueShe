@@ -1,4 +1,4 @@
-name: Get Correct Fingerprint Based on Kid
+name: Extract both SHA1 and SHA256 fingerprints
 
 on:
   workflow_dispatch:
