@@ -3,6 +3,7 @@ import requests
 import oss2
 from tenacity import retry, stop_after_attempt, wait_fixed
 from aliyunsdkcore.client import AcsClient
+from aliyunsdkcore.request import CommonRequest
 from aliyunsdksts.request.v20150401 import AssumeRoleRequest
 
 CF_IPS_V4 = "https://www.cloudflare.com/ips-v4"
@@ -38,7 +39,9 @@ def build_policy(ip_list, bucket_name):
 def get_sts_token(ak_id, ak_secret, role_arn, region="cn-hongkong"):
     """使用长期AK扮演角色，获取临时安全令牌"""
     sts_endpoint = f"sts.{region}.aliyuncs.com"
-    client = AcsClient(ak_id, ak_secret, sts_endpoint)
+    # 修正：构造 Client 时传入正确的 region_id，再用 set_endpoint 指定端点
+    client = AcsClient(ak_id, ak_secret, region)
+    client.set_endpoint(sts_endpoint)
     req = AssumeRoleRequest.AssumeRoleRequest()
     req.set_RoleArn(role_arn)
     req.set_RoleSessionName("gh-actions-oss-policy")
@@ -65,10 +68,9 @@ def main():
     # 3. Audit: print assumed role identity
     verify_client = AcsClient(
         creds["AccessKeyId"], creds["AccessKeySecret"],
-        f"sts.{region}.aliyuncs.com",
-        security_token=creds["SecurityToken"]
+        region, security_token=creds["SecurityToken"]
     )
-    from aliyunsdkcore.request import CommonRequest
+    verify_client.set_endpoint(f"sts.{region}.aliyuncs.com")
     req = CommonRequest()
     req.set_domain(f"sts.{region}.aliyuncs.com")
     req.set_version("2015-04-01")
