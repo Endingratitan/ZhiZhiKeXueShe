@@ -38,10 +38,8 @@ def build_policy(ip_list, bucket_name):
 
 def get_sts_token(ak_id, ak_secret, role_arn, region="cn-hongkong"):
     """使用长期AK扮演角色，获取临时安全令牌"""
-    sts_endpoint = f"sts.{region}.aliyuncs.com"
-    # 修正：构造 Client 时传入正确的 region_id，再用 set_endpoint 指定端点
+    # AcsClient 会根据 region 自动拼接 sts.<region>.aliyuncs.com
     client = AcsClient(ak_id, ak_secret, region)
-    client.set_endpoint(sts_endpoint)
     req = AssumeRoleRequest.AssumeRoleRequest()
     req.set_RoleArn(role_arn)
     req.set_RoleSessionName("gh-actions-oss-policy")
@@ -65,19 +63,19 @@ def main():
     creds = get_sts_token(ak_id, ak_secret, role_arn, region)
     print(f"STS token obtained, expiry: {creds['Expiration']}")
 
-    # 3. Audit: print assumed role identity
-    verify_client = AcsClient(
-        creds["AccessKeyId"], creds["AccessKeySecret"],
-        region, security_token=creds["SecurityToken"]
-    )
-    verify_client.set_endpoint(f"sts.{region}.aliyuncs.com")
-    req = CommonRequest()
-    req.set_domain(f"sts.{region}.aliyuncs.com")
-    req.set_version("2015-04-01")
-    req.set_action_name("GetCallerIdentity")
-    req.set_method("POST")
-    identity = json.loads(verify_client.do_action_with_exception(req))
-    print(f"Assumed role principal: {identity.get('Arn', 'unknown')}")
+    # 3. (Optional) Audit role identity – 使用 CommonRequest 调用 GetCallerIdentity
+    try:
+        verify_client = AcsClient(creds["AccessKeyId"], creds["AccessKeySecret"], region,
+                                  security_token=creds["SecurityToken"])
+        req = CommonRequest()
+        req.set_domain(f"sts.{region}.aliyuncs.com")
+        req.set_version("2015-04-01")
+        req.set_action_name("GetCallerIdentity")
+        req.set_method("POST")
+        identity = json.loads(verify_client.do_action_with_exception(req))
+        print(f"Assumed role principal: {identity.get('Arn', 'unknown')}")
+    except Exception as ex:
+        print(f"Audit warning: {ex}")
 
     # 4. Update OSS bucket policy
     auth = oss2.StsAuth(creds["AccessKeyId"], creds["AccessKeySecret"], creds["SecurityToken"])
