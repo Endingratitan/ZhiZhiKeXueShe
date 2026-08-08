@@ -3,7 +3,6 @@ import requests
 import oss2
 from tenacity import retry, stop_after_attempt, wait_fixed
 from aliyunsdkcore.client import AcsClient
-from aliyunsdkcore.request import CommonRequest
 from aliyunsdksts.request.v20150401 import AssumeRoleRequest
 
 CF_IPS_V4 = "https://www.cloudflare.com/ips-v4"
@@ -23,6 +22,7 @@ def get_cloudflare_ips():
     return ips
 
 def build_policy(ip_list, bucket_name):
+    # 新增 StringNotEquals 条件，避免 OSS 提示 SourceVpc 缺失
     return json.dumps({
         "Version": "1",
         "Statement": [{
@@ -31,14 +31,13 @@ def build_policy(ip_list, bucket_name):
             "Action": ["oss:GetObject"],
             "Resource": [f"acs:oss:cn-hongkong:*:{bucket_name}/*"],
             "Condition": {
-                "NotIpAddress": {"acs:SourceIp": ip_list}
+                "NotIpAddress": {"acs:SourceIp": ip_list},
+                "StringNotEquals": {"acs:SourceVpc": "NONEXISTENT_VPC"}
             }
         }]
     })
 
 def get_sts_token(ak_id, ak_secret, role_arn, region="cn-hongkong"):
-    """使用长期AK扮演角色，获取临时安全令牌"""
-    # AcsClient 会根据 region 自动拼接 sts.<region>.aliyuncs.com
     client = AcsClient(ak_id, ak_secret, region)
     req = AssumeRoleRequest.AssumeRoleRequest()
     req.set_RoleArn(role_arn)
@@ -55,29 +54,12 @@ def main():
     role_arn = os.environ["ALIYUN_ROLE_ARN"]
     region = os.environ.get("ALIYUN_REGION", "cn-hongkong")
 
-    # 1. Cloudflare IPs
     ips = get_cloudflare_ips()
     print(f"Fetched {len(ips)} Cloudflare IP ranges")
 
-    # 2. STS
     creds = get_sts_token(ak_id, ak_secret, role_arn, region)
     print(f"STS token obtained, expiry: {creds['Expiration']}")
 
-    # 3. (Optional) Audit role identity – 使用 CommonRequest 调用 GetCallerIdentity
-    try:
-        verify_client = AcsClient(creds["AccessKeyId"], creds["AccessKeySecret"], region,
-                                  security_token=creds["SecurityToken"])
-        req = CommonRequest()
-        req.set_domain(f"sts.{region}.aliyuncs.com")
-        req.set_version("2015-04-01")
-        req.set_action_name("GetCallerIdentity")
-        req.set_method("POST")
-        identity = json.loads(verify_client.do_action_with_exception(req))
-        print(f"Assumed role principal: {identity.get('Arn', 'unknown')}")
-    except Exception as ex:
-        print(f"Audit warning: {ex}")
-
-    # 4. Update OSS bucket policy
     auth = oss2.StsAuth(creds["AccessKeyId"], creds["AccessKeySecret"], creds["SecurityToken"])
     bucket = oss2.Bucket(auth, endpoint, bucket_name)
     policy_text = build_policy(ips, bucket_name)
