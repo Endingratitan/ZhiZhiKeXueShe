@@ -1,0 +1,42 @@
+name: Update OSS Bucket Policy (AK+STS)
+
+on:
+  schedule:
+    - cron: '0 2 * * *'      # 北京时间 10:00
+  workflow_dispatch:
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install -r .github/scripts/requirements.txt
+
+      - name: Update OSS Policy
+        env:
+          env:
+          OSS_BUCKET: ${{ secrets.OSS_BUCKET }}
+          OSS_ENDPOINT: oss-cn-hongkong.aliyuncs.com    # 不带协议头
+          ALIYUN_ACCESS_KEY_ID: ${{ secrets.ALIYUN_ACCESS_KEY_ID }}
+          ALIYUN_ACCESS_KEY_SECRET: ${{ secrets.ALIYUN_ACCESS_KEY_SECRET }}
+          ALIYUN_ROLE_ARN: ${{ secrets.ALIYUN_ROLE_ARN }}
+        run: python .github/scripts/update_oss_policy.py
+
+      - name: Notify on failure
+        if: failure()
+        uses: slackapi/slack-github-action@v1.23.0
+        with:
+         payload: |
+          {
+            "text": "OSS policy update failed! <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View run>"
+           }
+        env:
+         SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
+         
