@@ -1,6 +1,8 @@
 # ZhiZhiKeXueShe
+[English](README.md) | [中文](README.zh.md)
+
 works for club's web
 
 ## Q & A
-### Why use .top? 
-for history reason: the name [hunnucupt.top](https://hunnucupt.top) was registered last year.
+### Q : Why use .top? 
+A : for history reason: the name [hunnucupt.top](https://hunnucupt.top) was registered last year.
