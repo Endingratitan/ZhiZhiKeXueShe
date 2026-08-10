@@ -1,5 +1,5 @@
 # 致知科学社 网站开源部分
-[English](README.md) | [中文](README.zh.md)
+[English](README.md) | [中文](README_zh.md)
 
 网站目前仍处于实验阶段
 
