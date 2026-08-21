@@ -1,0 +1,95 @@
+/* ============================================================
+   致知科学社 · 物理公式装饰流（全站）
+   漂浮于内容之上（z-index 50 < 导航 100），顶部/底部渐隐，
+   至导航栏处自然消失；悬停、拖拽可交互。
+   ============================================================ */
+.formula-field {
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    overflow: hidden;
+    pointer-events: none;
+    -webkit-mask-image: linear-gradient(180deg, transparent 0px, #000 110px, #000 calc(100% - 46px), transparent 100%);
+    mask-image: linear-gradient(180deg, transparent 0px, #000 110px, #000 calc(100% - 46px), transparent 100%);
+}
+
+.formula-item {
+    position: absolute;
+    bottom: -6%;
+    white-space: nowrap;
+    font-family: var(--font-mono);
+    font-size: 14px;
+    color: var(--muted);
+    opacity: 0.2;
+    pointer-events: auto;
+    cursor: grab;
+    user-select: none;
+    -webkit-user-select: none;
+    animation: formula-drift linear infinite;
+    transition: opacity 0.3s ease;
+}
+
+.formula-item:hover,
+.formula-item.hovered,
+.formula-item.held,
+.formula-item.captured {
+    animation-play-state: paused;
+    color: var(--accent);
+    opacity: 0.7;
+    text-shadow: 0 0 14px rgba(61, 184, 255, 0.5);
+}
+
+.formula-item.held { cursor: grabbing; opacity: 0.85; }
+
+@keyframes formula-drift {
+    from { transform: translateY(0); }
+    to { transform: translateY(-122vh); }
+}
+
+.formula-card {
+    position: fixed;
+    z-index: 200;
+    width: 288px;
+    padding: 18px 20px;
+    border-radius: 16px;
+    background: var(--card);
+    border: 1px solid var(--line);
+    box-shadow: var(--shadow-lg);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+}
+
+.formula-card .fc-formula {
+    font-family: var(--font-mono);
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--accent-deep);
+}
+
+.formula-card .fc-name { margin-top: 10px; font-size: 15.5px; font-weight: 700; }
+
+.formula-card .fc-meta { margin-top: 5px; font-size: 13px; line-height: 1.65; color: var(--muted); }
+
+.formula-card .fc-close {
+    position: absolute;
+    top: 8px;
+    right: 10px;
+    width: 26px;
+    height: 26px;
+    border: none;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--muted);
+    font-size: 16px;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.formula-card .fc-close:hover { background: var(--accent-soft); color: var(--ink); }
+
+[hidden] { display: none !important; }
+
+/* 较窄屏幕（两侧留白不足）隐藏 */
+@media (max-width: 1080px) {
+    .formula-field { display: none; }
+}

@@ -1,0 +1,37 @@
+/* 加入我们 · 板块样式 */
+/* ---------- 常见问题 ---------- */
+.faq { margin-top: 52px; max-width: 780px; }
+
+.faq details {
+    padding: 20px 24px;
+    margin-bottom: 14px;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+}
+
+.faq summary {
+    position: relative;
+    padding-right: 28px;
+    font-size: 16.5px;
+    font-weight: 700;
+    cursor: pointer;
+    list-style: none;
+}
+
+.faq summary::-webkit-details-marker { display: none; }
+
+.faq summary::after {
+    content: "+";
+    position: absolute;
+    right: 2px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 22px;
+    color: var(--accent-deep);
+}
+
+.faq details[open] summary::after { content: "−"; }
+.faq details p { margin-top: 12px; font-size: 15px; color: var(--muted); }
+
+

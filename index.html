@@ -1,10 +1,12 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>致知科学社</title>
+    <meta name="description" content="致知科学社官方网站 —— 湖南师范大学学术科技类学生社团，趣科创、广科普、深科研。">
+    <title>致知科学社 · 官方网站</title>
 
+    <script>!function(){try{var t=localStorage.getItem("zzkxs-theme");if(!t){t=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}document.documentElement.setAttribute("data-theme",t)}catch(e){document.documentElement.setAttribute("data-theme","light")}}();</script>
     <link rel="icon" type="image/png" href="./favicon/favicon-96x96.png?v=20260804" sizes="96x96" />
     <link rel="icon" type="image/svg+xml" href="./favicon/favicon.svg?v=20260804" />
     <link rel="shortcut icon" href="./favicon/favicon.ico?v=20260804" />
@@ -12,22 +14,368 @@
     <meta name="apple-mobile-web-app-title" content="致知科学社" />
     <link rel="manifest" href="./favicon/site.webmanifest?v=20260804" />
 
-    <link rel="stylesheet" type="text/css" href="./assets/css/test.css">
+    <link rel="stylesheet" type="text/css" href="./assets/css/index.css">
+    <link rel="stylesheet" type="text/css" href="./assets/css/formulas.css">
 </head>
-<body>
-    <h1 class="testHeader">致知科学社</h1>
-    <h1 class="testHeader">占位页面（测试用首页）</h1>
-    <p class="testEng">welcome to our website</p>
-    <img src="./assets/images/zzkxs_icon.png" alt="logo" class="logo">
-    <p class="testEng">这是一个占位页面, 欢迎访问!<br><b>只是暂时测试使用！不要考虑美观度的问题！我知道它长得很丑！<br>如遇到问题请及时报告</b></p>
-    <h2 class="testEng" style="font-size: 42px;color: rgb(37, 5, 154);text-align: center;">测试用页面链接</h2>
-    <ul class="testEng">
-        <li><a href="./index.html">测试用首页</a></li>
-        <li><a href="./pages/forTest/path_test.html">GitHubPages的Path测试页面</a></li>
-        <li><a href="./pages/forTest/url_test.html">GitHubPages的URL测试页面</a></li>
-    
-    </ul>
-    <br><br>
-    <p class = "testEng" style="font-size: 32px;text-align: center;">-------End--------</p>
+<body id="top">
+
+
+    <!-- ======================= 导航栏 ======================= -->
+    <header class="site-header" id="siteHeader">
+        <div class="container header-inner">
+            <a class="brand" href="index.html" aria-label="返回首页">
+                <img class="brand-logo" src="./assets/images/zzkxs_icon.png" alt="致知科学社 logo">
+                <span class="brand-name">致知科学社</span>
+            </a>
+
+            <nav class="site-nav" id="siteNav" aria-label="主导航">
+                <a class="nav-link active" href="index.html">首页</a>
+                <a class="nav-link" href="pages/about/index.html">关于我们</a>
+                <a class="nav-link" href="pages/activities/index.html">品牌活动</a>
+                <a class="nav-link" href="pages/news/index.html">社团动态</a>
+                <div class="nav-dropdown">
+                    <button type="button" class="nav-link nav-dropdown-btn" aria-expanded="false" aria-haspopup="true">社团培养<svg class="caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
+                    <ul class="nav-dropdown-menu" role="menu">
+                        <li role="none"><a class="nav-link nav-link-pending dropdown-item" href="#" role="menuitem">CUPT 入门<span class="pending-badge">待上线</span></a></li>
+                        <li role="none"><a class="nav-link nav-link-pending dropdown-item" href="#" role="menuitem">科研入门<span class="pending-badge">待上线</span></a></li>
+                    </ul>
+                </div>
+                <a class="nav-link" href="pages/join/index.html">加入我们</a>
+                <a class="nav-link" href="pages/contact/index.html">联系我们</a>
+                <a class="btn btn-primary nav-cta" href="pages/join/index.html">立即加入</a>
+                <button type="button" class="nav-login">会员登录</button>
+            </nav>
+
+            <div class="header-actions">
+            <button class="theme-toggle" id="themeToggle" type="button" aria-label="切换夜间模式" aria-pressed="false">
+                <svg class="icon icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+                <svg class="icon icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+            </button>
+            <button class="nav-toggle" id="navToggle" aria-expanded="false" aria-controls="siteNav" aria-label="打开菜单">
+                <span></span><span></span><span></span>
+            </button>
+            </div>
+        </div>
+    <div class="site-banner" role="note">
+        <span class="banner-dot" aria-hidden="true"></span>
+        网站建设正在进行中 · 页面内容可能会有较大变动，敬请期待
+        <button type="button" class="banner-close" id="bannerClose" aria-label="关闭提示条">×</button>
+    </div>
+    </header>
+
+    <main>
+
+        <!-- ======================= 首屏 Hero ======================= -->
+        <section class="hero" id="home">
+            <div class="hero-bg" aria-hidden="true">
+                <span class="blob blob-a"></span>
+                <span class="blob blob-b"></span>
+                <span class="hero-grid"></span>
+            </div>
+
+            <div class="container hero-inner">
+                <div class="hero-text">
+                    <p class="hero-eyebrow reveal">趣科创 · 广科普 · 深科研</p>
+                    <h1 class="hero-title reveal">
+                        <span class="grad-text">致知</span>科学社
+                    </h1>
+                    <p class="hero-subtitle reveal">
+                        湖南师范大学学术科技类学生社团<br>
+                        聚焦物理等数理基础学科，让科学在校园里发生。
+                    </p>
+                    <div class="hero-actions reveal">
+                        <a class="btn btn-primary" href="pages/about/index.html">了解我们</a>
+                        <a class="btn btn-ghost" href="pages/join/index.html">加入我们 →</a>
+                    </div>
+                </div>
+
+                <div class="hero-logo reveal">
+                    <div class="orbit orbit-outer" aria-hidden="true"></div>
+                    <div class="orbit orbit-inner" aria-hidden="true"></div>
+                    <div class="logo-frame">
+                        <img src="./assets/images/zzkxs_icon.png" alt="致知科学社 logo">
+                    </div>
+                    <span class="orbit-dot dot-a" aria-hidden="true"></span>
+                    <span class="orbit-dot dot-b" aria-hidden="true"></span>
+                </div>
+            </div>
+
+            <div class="container stats-bar reveal">
+                <div class="stat">
+                    <span class="stat-num">2024</span>
+                    <span class="stat-label">社团成立</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-num">180</span>
+                    <span class="stat-label">社团成员</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-num">2</span>
+                    <span class="stat-label">大品牌体系</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-num">3</span>
+                    <span class="stat-label">场品牌活动</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- ======================= 关于我们 ======================= -->
+        <section class="section" id="about">
+            <div class="container">
+                <p class="section-eyebrow reveal">关于我们 · About</p>
+                <h2 class="section-title reveal">趣科创 · 广科普 · 深科研</h2>
+                <p class="section-sub reveal">
+                    致知科学社是湖南师范大学学术科技类学生社团，成立于 2024 年，
+                    由原「青年物理学家协会」与「启明科创协会」合并组建，聚焦物理等数理基础学科，
+                    已形成科研方法培训和基础学科科普两大品牌体系。
+                </p>
+
+                <div class="motto">
+                    <div class="motto-item reveal">
+                        <span class="motto-word">趣科创</span>
+                        <span class="motto-desc">动手做实验，把创意变成作品</span>
+                    </div>
+                    <div class="motto-item reveal">
+                        <span class="motto-word">广科普</span>
+                        <span class="motto-desc">面向全校的基础学科科普</span>
+                    </div>
+                    <div class="motto-item reveal">
+                        <span class="motto-word">深科研</span>
+                        <span class="motto-desc">科研方法培训与学术进阶</span>
+                    </div>
+                </div>
+
+                <div class="hero-actions reveal">
+                    <a class="btn btn-ghost" href="pages/about/index.html">了解更多 →</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- ======================= 品牌活动 ======================= -->
+        <section class="section" id="activities">
+            <div class="container">
+                <p class="section-eyebrow reveal">品牌活动 · Activities</p>
+                <h2 class="section-title reveal">两大品牌活动</h2>
+                <p class="section-sub reveal">
+                    以科研方法培训和基础学科科普为两大品牌体系，让每一位成员都能在探索中成长。
+                </p>
+
+                <div class="brand-grid">
+                    <article class="brand-card reveal">
+                        <div class="brand-cover">
+                            <img src="./assets/images/news/2025-cupt-group.webp" alt="2025 年 CUPT 表演赛结尾合影">
+                        </div>
+                        <div class="brand-body">
+                            <span class="tag">品牌赛事</span>
+                            <h3>CUPT 创新实验表演赛</h3>
+                            <p>复刻中国大学生物理学术竞赛（CUPT）赛制，以理论建模为基础、实验演示为助力，在正反方汇报与辩论中体验科研全过程。</p>
+                            <a class="btn btn-primary btn-sm" href="pages/activities/index.html">了解 CUPT →</a>
+                        </div>
+                    </article>
+
+                    <article class="brand-card reveal">
+                        <div class="brand-cover ph">
+                            <svg class="ph-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <rect x="3" y="3" width="7" height="9" rx="1.5"/>
+                                <rect x="14" y="12" width="7" height="9" rx="1.5"/>
+                                <path d="m10 6 4-2M10 12l4 2"/>
+                            </svg>
+                        </div>
+                        <div class="brand-body">
+                            <span class="tag">品牌活动</span>
+                            <h3>系列科研技能分享会</h3>
+                            <p>科研方法培训品牌：从文献检索到实验设计，定期举办科研技能分享会，帮助成员迈出科研第一步。（专题内容建设中）</p>
+                            <a class="btn btn-primary btn-sm" href="pages/activities/index.html">了解更多 →</a>
+                        </div>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <!-- ======================= 最新动态 ======================= -->
+        <section class="section" id="news">
+            <div class="container">
+                <p class="section-eyebrow reveal">社团动态 · News</p>
+                <h2 class="section-title reveal">最新动态</h2>
+
+                <div class="card-grid">
+                    <article class="post-card reveal">
+                        <a class="post-thumb" href="pages/news/2026-science-quiz.html" aria-label="查看科普知识竞赛详情">
+                            <img src="./assets/images/news/2026-science-quiz-group.webp" alt="科普知识竞赛复赛合影" loading="lazy">
+                        </a>
+                        <div class="post-body">
+                            <div class="post-meta">
+                                <span class="tag">科普竞赛</span>
+                                <time datetime="2026-03-26">2026.03.26–27</time>
+                            </div>
+                            <h3>「科普知识竞赛」在格物楼举行</h3>
+                            <p>初赛、决赛分别于格物楼 219、217 开展，从全校选手中决出前四名与优胜奖。</p>
+                            <a class="post-link" href="pages/news/2026-science-quiz.html">阅读更多 →</a>
+                        </div>
+                    </article>
+
+                    <article class="post-card reveal">
+                        <a class="post-thumb" href="pages/news/2025-cupt.html" aria-label="查看 2025 CUPT 表演赛详情">
+                            <img src="./assets/images/news/2025-cupt-report.webp" alt="2025 年 CUPT 表演赛正反主控汇报" loading="lazy">
+                        </a>
+                        <div class="post-body">
+                            <div class="post-meta">
+                                <span class="tag">CUPT</span>
+                                <time datetime="2025-10-29">2025.10.29</time>
+                            </div>
+                            <h3>2025 年 CUPT 表演赛成功举办</h3>
+                            <p>以「瑞利贝纳德对流」为题，严格复刻 CUPT 赛程，呈现一场思维与视觉的双重盛宴。</p>
+                            <a class="post-link" href="pages/news/2025-cupt.html">阅读更多 →</a>
+                        </div>
+                    </article>
+
+                    <article class="post-card reveal">
+                        <a class="post-thumb" href="pages/news/2024-cupt.html" aria-label="查看 2024 CUPT 表演赛详情">
+                            <span>照片整理中</span>
+                        </a>
+                        <div class="post-body">
+                            <div class="post-meta">
+                                <span class="tag">CUPT</span>
+                                <time datetime="2024-11-10">2024.11.10</time>
+                            </div>
+                            <h3>2024 年 CUPT 表演赛</h3>
+                            <p>社团成立后举办的首届 CUPT 表演赛，开启了品牌赛事的序幕。</p>
+                            <a class="post-link" href="pages/news/2024-cupt.html">阅读更多 →</a>
+                        </div>
+                    </article>
+                </div>
+
+                <div class="hero-actions hero-actions-center reveal">
+                    <a class="btn btn-ghost" href="pages/news/index.html">查看全部动态 →</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- ======================= 发展历程 ======================= -->
+        <section class="section" id="milestones">
+            <div class="container">
+                <p class="section-eyebrow reveal">发展历程 · Timeline</p>
+                <h2 class="section-title reveal">一路走来</h2>
+
+                <div class="timeline">
+                    <div class="tl-item reveal">
+                        <span class="tl-date">2024</span>
+                        <h3 class="tl-title">社团成立</h3>
+                        <p class="tl-text">由原「青年物理学家协会」与「启明科创协会」合并组建，聚焦物理等数理基础学科。</p>
+                    </div>
+                    <div class="tl-item reveal">
+                        <span class="tl-date">2024.11.10</span>
+                        <h3 class="tl-title">首届 CUPT 表演赛</h3>
+                        <p class="tl-text">举办湖南师范大学 2024 年 CUPT 表演赛，品牌赛事拉开序幕。</p>
+                    </div>
+                    <div class="tl-item reveal">
+                        <span class="tl-date">2025.10.29</span>
+                        <h3 class="tl-title">2025 年 CUPT 表演赛</h3>
+                        <p class="tl-text">以「瑞利贝纳德对流」为题，在格物楼 109 教室呈现完整赛制。</p>
+                    </div>
+                    <div class="tl-item reveal">
+                        <span class="tl-date">2026.03.26–27</span>
+                        <h3 class="tl-title">「知识科普竞赛」</h3>
+                        <p class="tl-text">初赛、决赛分别于格物楼 219、217 开展，推动科普工作走深走实。</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ======================= 加入我们 ======================= -->
+        <section class="section" id="join">
+            <div class="container">
+                <div class="cta-band reveal">
+                    <h2>对科学感兴趣？</h2>
+                    <p>招新信息与报名方式将在「加入我们」页面发布，欢迎每一位热爱科学的你。</p>
+                    <a class="btn btn-light" href="pages/join/index.html">加入我们 →</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- ======================= 联系我们 ======================= -->
+        <section class="section" id="contact">
+            <div class="container">
+                <p class="section-eyebrow reveal">联系我们 · Contact</p>
+                <h2 class="section-title reveal">找到我们</h2>
+
+                <div class="contact-grid">
+                    <ul class="contact-list">
+                        <!-- ↓ 占位：联系方式，请替换为真实信息 ↓ -->
+                        <li class="contact-item reveal">
+                            <span class="contact-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                    <rect x="2" y="4" width="20" height="16" rx="2"/>
+                                    <path d="m22 7-10 5L2 7"/>
+                                </svg>
+                            </span>
+                            <div>
+                                <strong>邮箱</strong>
+                                <p>contact@example.com（占位）</p>
+                            </div>
+                        </li>
+                        <li class="contact-item reveal">
+                            <span class="contact-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                    <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
+                                </svg>
+                            </span>
+                            <div>
+                                <strong>公众号 / 交流群</strong>
+                                <p>扫码或搜索加入（占位）</p>
+                            </div>
+                        </li>
+                        <li class="contact-item reveal">
+                            <span class="contact-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                                    <circle cx="12" cy="10" r="3"/>
+                                </svg>
+                            </span>
+                            <div>
+                                <strong>活动地点</strong>
+                                <p>湖南师范大学 · 格物楼</p>
+                            </div>
+                        </li>
+                    </ul>
+
+                    <div class="contact-card reveal">
+                        <img src="./assets/images/zzkxs_icon.png" alt="致知科学社 logo">
+                        <h3>致知科学社</h3>
+                        <p>趣科创 · 广科普 · 深科研</p>
+                        <a class="btn btn-light btn-sm" href="pages/contact/index.html">查看联系方式 →</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- ======================= 页脚 ======================= -->
+    <footer class="site-footer">
+        <div class="container footer-inner">
+            <div class="footer-brand">
+                <img class="brand-logo" src="./assets/images/zzkxs_icon.png" alt="致知科学社 logo">
+                <p>致知科学社</p>
+                <p class="footer-slogan">趣科创 · 广科普 · 深科研</p>
+            </div>
+
+            <nav class="footer-links" aria-label="页脚导航">
+                <a href="pages/about/index.html">关于我们</a>
+                <a href="pages/activities/index.html">品牌活动</a>
+                <a href="pages/news/index.html">社团动态</a>
+                <a href="pages/join/index.html">加入我们</a>
+                <a href="pages/contact/index.html">联系我们</a>
+            </nav>
+
+            <div class="footer-meta">
+                <a href="./pages/forTest/index.html" target="_blank" rel="noopener">测试页面</a>
+                <p>© <span id="year">2026</span> 致知科学社 · 保留所有权利</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="./assets/js/index.js"></script>
+    <script src="./assets/js/formulas.js"></script>
 </body>
 </html>

@@ -1,0 +1,27 @@
+/* 关于我们 · 板块样式 */
+/* ---------- 组织架构 ---------- */
+.org-grid {
+    margin-top: 52px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(215px, 1fr));
+    gap: 22px;
+}
+
+.org-card {
+    padding: 28px 24px;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.org-card:hover { transform: translateY(-5px); box-shadow: var(--shadow-md); }
+
+.org-role { font-size: 13px; font-weight: 700; letter-spacing: 1.5px; color: var(--accent-deep); }
+.org-card h3 { margin-top: 8px; font-size: 19px; }
+.org-card p { margin-top: 8px; font-size: 14.5px; color: var(--muted); }
+
+
+/* 简介两栏文字 */
+.intro-title { font-size: 34px; }
+.intro-text { max-width: none; }
