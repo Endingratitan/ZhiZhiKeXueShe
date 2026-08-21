@@ -716,6 +716,8 @@ ul { list-style: none; }
    页脚
    ============================================================ */
 .site-footer {
+    position: relative;
+    z-index: 60;
     background: var(--footer-bg);
     color: var(--footer-text);
     padding: 56px 0 32px;
