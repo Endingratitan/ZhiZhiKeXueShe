@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PathTestHtml</title>
+    
+    <link rel="icon" type="image/png" href="../../favicon/favicon-96x96.png?v=20260804" sizes="96x96" />
+    <link rel="icon" type="image/svg+xml" href="../../favicon/favicon.svg?v=20260804" />
+    <link rel="shortcut icon" href="../../favicon/favicon.ico?v=20260804" />
+    <link rel="apple-touch-icon" sizes="180x180" href="../../favicon/apple-touch-icon.png?v=20260804" />
+    <meta name="apple-mobile-web-app-title" content="致知科学社" />
+    <link rel="manifest" href="../../favicon/site.webmanifest?v=20260804" />
+
+    <link rel="stylesheet" type="text/css" href="../../assets/css/test.css">
+
+    <!-- KaTeX CSS and JS files -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.18.5/dist/katex.min.css" integrity="sha384-2dNi/m6JtSiviznrOIZ5fTiZ5As0In2QwkuXSgoqcQtCNplvJAbt+jveeN+8en73" crossorigin="anonymous">
+
+    <!-- The loading of KaTeX is deferred to speed up page rendering -->
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.18.5/dist/katex.min.js" integrity="sha384-TTF8eEsEKInX2meLzP5V1z/npGYIElXYGksx93f0qBZHu6IL3PdzVB8objytx+TR" crossorigin="anonymous"></script>
+
+    <!-- To automatically render math in text elements, include the auto-render extension: -->
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.18.5/dist/contrib/auto-render.min.js" integrity="sha384-bjyGPfbij8/NDKJhSGZNP/khQVgtHUE5exjm4Ydllo42FwIgYsdLO2lXGmRBf5Mz" crossorigin="anonymous"
+        onload="renderMathInElement(document.body);"></script>
+
+</head>
+<body>
+    <h1 class="testHeader">致知科学社</h1>
+    <h1 class="testHeader">KATEX API测试用</h1>
+
+    <p class="testEng">This is a test page for KaTeX rendering.</p>
+    <p class="testEng">\( \int_{0}^{\infty} e^{-x^2} dx \) </p>
+    <p class="testEng">$$ \sum_{n=1}^{\infty} \frac{1}{n^2} = \frac{\pi^2}{6} $$</p>
+    <p class="testEng">Inline math: \( a^2 + b^2 = c^2 \)</p>
+    <p class="testEng">Block math: $$ E = mc^2 $$</p>
+
+    <ul>
+        <li><a href="./index.html" class="testEng">返回测试用首页</a></li>
+    </ul>
+</body>
+</html>
