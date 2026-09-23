@@ -1,0 +1,158 @@
+/* ============================================================
+   致知科学社 · 设置面板（setting.js 配套样式）
+   ------------------------------------------------------------
+   设计令牌全部沿用 index.css 的 CSS 变量，明暗主题自动适配。
+   层级：设置面板遮罩 z-index 400（高于导航栏 z100、公式卡 z200）。
+   ============================================================ */
+
+/* ---------- 导航栏设置按钮（与 .theme-toggle 同规格） ---------- */
+.settings-toggle {
+    position: relative;
+    width: 40px;
+    height: 40px;
+    margin-left: 4px;
+    display: grid;
+    place-items: center;
+    border: none;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--ink);
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+.settings-toggle:hover { background: var(--accent-soft); }
+.settings-toggle[aria-expanded="true"] { background: var(--accent-soft); }
+.settings-toggle .icon {
+    width: 20px;
+    height: 20px;
+    transition: transform 0.25s ease;
+}
+/* 面板开启时齿轮微转，作为状态暗示 */
+.settings-toggle[aria-expanded="true"] .icon { transform: rotate(45deg); }
+
+/* 防御：即使 formulas.css（含全局 [hidden] 规则）未加载，
+   hidden 状态下也不显示遮罩，避免全屏元素遮挡公式流 */
+.settings-modal[hidden] { display: none !important; }
+
+/* ---------- 设置面板遮罩 ---------- */
+.settings-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 400;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: rgba(10, 16, 25, 0.50);
+    -webkit-backdrop-filter: blur(4px);
+    backdrop-filter: blur(4px);
+}
+[data-theme="dark"] .settings-modal { background: rgba(0, 0, 0, 0.60); }
+
+/* ---------- 面板卡片（尺寸/形状与公式编辑器面板完全一致，多余空间留白） ---------- */
+.settings-panel {
+    width: min(1000px, 96vw);
+    height: min(700px, 88vh);
+    display: flex;
+    flex-direction: column;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+}
+
+/* 渐变头：与 .fe-head 同款（--accent-soft → 透明） */
+.settings-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 18px 22px 14px;
+    background: linear-gradient(180deg, var(--accent-soft), transparent);
+}
+.settings-head-text { min-width: 0; }
+.settings-title { margin: 0; font-size: 17.5px; font-weight: 700; letter-spacing: 0.2px; }
+.settings-subtitle { margin: 4px 0 0; font-size: 12.5px; line-height: 1.6; color: var(--muted); }
+.settings-x {
+    width: 28px;
+    height: 28px;
+    border: none;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--muted);
+    font-size: 16px;
+    line-height: 1;
+    cursor: pointer;
+}
+.settings-x:hover { background: var(--accent-soft); color: var(--ink); }
+
+/* 主体撑满剩余高度：设置项较少时下方留白，条目变多时可滚动 */
+.settings-body {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    padding: 18px 22px 20px;
+    overflow-y: auto;
+}
+
+/* 条目容器：与编辑器「显示设置」列表同一语言（圆角 + 边框 + 浅底） */
+.settings-list {
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    overflow: hidden;
+    background: var(--bg-alt);
+}
+
+/* 设置条目：整行可点，右侧箭头提示可进入（后续新功能照此追加） */
+.settings-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    padding: 15px 18px;
+    border: none;
+    border-top: 1px solid var(--line);   /* 直线分割 */
+    background: transparent;
+    color: inherit;
+    font-family: inherit;
+    text-align: left;
+    cursor: pointer;
+    transition: background-color 0.16s ease;
+}
+.settings-row:first-child { border-top: none; }
+.settings-row:hover { background: var(--accent-soft); }
+.settings-row-text {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+.settings-row-name { font-size: 14px; font-weight: 600; color: var(--ink); }
+.settings-row-desc { font-size: 12.5px; line-height: 1.55; color: var(--muted); }
+.settings-chevron {
+    flex: none;
+    width: 18px;
+    height: 18px;
+    color: var(--muted);
+    transition: color 0.16s ease, transform 0.16s ease;
+}
+.settings-row:hover .settings-chevron { color: var(--accent-deep); transform: translateX(2px); }
+
+/* 底部小字说明：贴面板底边，中间留白 */
+.settings-hint {
+    margin: auto 0 0;
+    padding-top: 14px;
+    font-size: 11.5px;
+    line-height: 1.6;
+    color: var(--muted);
+}
+
+/* ---------- 窄屏 ---------- */
+@media (max-width: 760px) {
+    .settings-head { padding: 16px 16px 12px; }
+    .settings-body { padding: 16px; }
+    .settings-row { padding: 13px 14px; }
+}

@@ -1,0 +1,214 @@
+/* ============================================================
+   致知科学社 · 物理公式装饰流（全站）
+   漂浮于内容之上（z-index 50），顶部被导航栏（z 100）遮挡、
+   底部被页脚（z 60）遮挡；悬停、拖拽可交互。
+   点击 / 拖拽捕获公式后弹出「公式介绍卡」。
+   ============================================================ */
+.formula-field {
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    overflow: hidden;
+    pointer-events: none;
+    /* 无蒙版：顶部由导航栏（z 100）遮挡，底部由页脚（z 60）遮挡 */
+}
+
+.formula-item {
+    position: absolute;
+    bottom: -6%;
+    white-space: nowrap;
+    font-family: var(--font-mono);
+    font-size: 14px;
+    color: var(--muted);
+    opacity: 0.2;
+    pointer-events: auto;
+    cursor: grab;
+    user-select: none;
+    -webkit-user-select: none;
+    animation: formula-drift linear infinite;
+    transition: opacity 0.3s ease;
+}
+
+.formula-item:hover,
+.formula-item.hovered,
+.formula-item.held,
+.formula-item.captured {
+    animation-play-state: paused;
+    color: var(--accent);
+    opacity: 0.7;
+    text-shadow: 0 0 14px rgba(61, 184, 255, 0.5);
+}
+
+.formula-item.held { cursor: grabbing; opacity: 0.85; }
+
+@keyframes formula-drift {
+    from { transform: translateY(0); }
+    to { transform: translateY(-122vh); }
+}
+
+/* ============================================================
+   公式介绍卡（点击 / 拖拽公式后弹出）
+   ============================================================ */
+.formula-card {
+    position: fixed;
+    z-index: 200;
+    display: flex;
+    flex-direction: column;
+    width: 380px;                              /* 加宽以容纳较长公式 */
+    max-width: calc(100vw - 28px);
+    max-height: calc(100vh - 28px);
+    padding: 18px 20px 16px;
+    border-radius: 18px;
+    background: var(--card);
+    border: 1px solid var(--line);
+    box-shadow: var(--shadow-lg);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+    animation: fc-pop 0.18s ease-out;
+}
+
+/* 公式特别宽时再由脚本加宽一档（380 → 480px） */
+.formula-card.fc-wide { width: 480px; }
+
+/* 内容滚动容器：卡片过高时内部滚动，右上角关闭按钮始终可见 */
+.formula-card .fc-body {
+    min-height: 0;
+    overflow-y: auto;
+}
+
+@keyframes fc-pop {
+    from { opacity: 0; transform: translateY(5px) scale(0.985); }
+    to   { opacity: 1; transform: none; }
+}
+
+/* 公式本体：柔和强调色底、居中展示；超宽时框内横向滚动 */
+.formula-card .fc-formula-box {
+    padding: 14px 16px;
+    border-radius: 12px;
+    background: var(--accent-soft);
+    text-align: center;
+    overflow-x: auto;
+}
+
+.formula-card .fc-formula-box::-webkit-scrollbar { height: 6px; }
+.formula-card .fc-formula-box::-webkit-scrollbar-thumb {
+    background: var(--line);
+    border-radius: 3px;
+}
+
+.formula-card .fc-formula {
+    margin: 0;
+    font-family: var(--font-mono);
+    font-size: 18px;                           /* 16 → 18px，长公式更清晰 */
+    font-weight: 600;
+    color: var(--accent-deep);
+    white-space: nowrap;
+}
+
+/* 名称与出处 */
+.formula-card .fc-name {
+    margin: 14px 0 0;
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1.4;
+    color: var(--ink);
+}
+
+/* 提出者 / 领域：分行 + 左侧标签对齐 */
+.formula-card .fc-info {
+    margin-top: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.formula-card .fc-info-row {
+    display: grid;
+    grid-template-columns: 46px 1fr;
+    gap: 8px;
+    margin: 0;
+    font-size: 12.5px;
+    line-height: 1.65;
+}
+
+.formula-card .fc-info-label { color: var(--muted); }
+.formula-card .fc-proposer,
+.formula-card .fc-theory {
+    color: var(--ink);
+    word-break: break-word;
+}
+
+/* NoteLink 参考链接区（无链接时整块隐藏） */
+.formula-card .fc-links-wrap {
+    margin-top: 13px;
+    padding-top: 11px;
+    border-top: 1px dashed var(--line);
+}
+
+.formula-card .fc-links-title {
+    margin: 0 0 8px;
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--muted);
+}
+
+.formula-card .fc-links {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.formula-card .fc-links a {
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+    padding: 6px 9px;
+    border-radius: 9px;
+    background: var(--bg-alt);
+    color: var(--accent-deep);
+    font-size: 12.5px;
+    line-height: 1.5;
+    text-decoration: none;
+    word-break: break-all;
+    transition: background-color 0.16s ease;
+}
+
+.formula-card .fc-links a::before {
+    content: '↗';
+    flex: none;
+    font-size: 11px;
+    opacity: 0.75;
+}
+
+.formula-card .fc-links a:hover { background: var(--accent-soft); }
+
+/* 关闭按钮 */
+.formula-card .fc-close {
+    position: absolute;
+    top: 8px;
+    right: 9px;
+    width: 26px;
+    height: 26px;
+    border: none;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--muted);
+    font-size: 15px;
+    line-height: 1;
+    cursor: pointer;
+    transition: background-color 0.16s ease, color 0.16s ease;
+}
+
+.formula-card .fc-close:hover { background: var(--accent-soft); color: var(--ink); }
+
+[hidden] { display: none !important; }
+
+/* 较窄屏幕（两侧留白不足）隐藏 */
+@media (max-width: 1080px) {
+    .formula-field { display: none; }
+}

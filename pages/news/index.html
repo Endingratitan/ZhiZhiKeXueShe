@@ -15,7 +15,10 @@
     <link rel="manifest" href="../../favicon/site.webmanifest?v=20260804" />
 
     <link rel="stylesheet" type="text/css" href="../../assets/css/index.css">
-    <link rel="stylesheet" type="text/css" href="../../assets/css/formulas.css">
+    <link rel="stylesheet" type="text/css" href="../../assets/css/navbar.css">
+    <link rel="stylesheet" type="text/css" href="../../assets/css/formular/formulas.css">
+    <link rel="stylesheet" type="text/css" href="../../assets/css/setting.css">
+    <link rel="stylesheet" type="text/css" href="../../assets/css/formular/formular-editor.css">
     <link rel="stylesheet" type="text/css" href="./news.css">
 </head>
 <body>
@@ -29,23 +32,15 @@
 
             <nav class="site-nav" id="siteNav" aria-label="主导航">
                 <a class="nav-link" href="../../index.html">首页</a>
-                <a class="nav-link" href="../about/index.html">关于我们</a>
-                <a class="nav-link" href="../activities/index.html">品牌活动</a>
                 <a class="nav-link active" href="../news/index.html">社团动态</a>
-                <div class="nav-dropdown">
-                    <button type="button" class="nav-link nav-dropdown-btn" aria-expanded="false" aria-haspopup="true">社团培养<svg class="caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
-                    <ul class="nav-dropdown-menu" role="menu">
-                        <li role="none"><a class="nav-link nav-link-pending dropdown-item" href="#" role="menuitem">CUPT 入门<span class="pending-badge">待上线</span></a></li>
-                        <li role="none"><a class="nav-link nav-link-pending dropdown-item" href="#" role="menuitem">科研入门<span class="pending-badge">待上线</span></a></li>
-                    </ul>
-                </div>
-                <a class="nav-link" href="../join/index.html">加入我们</a>
-                <a class="nav-link" href="../contact/index.html">联系我们</a>
-                <a class="btn btn-primary nav-cta" href="../join/index.html">立即加入</a>
-                <button type="button" class="nav-login">会员登录</button>
+                <a class="nav-link" href="../activities/index.html">社团活动</a>
+                <a class="nav-link nav-link-pending" href="#">科研科普<span class="pending-badge">待上线</span></a>
+                <a class="nav-link nav-link-pending" href="#">HNPT 专栏<span class="pending-badge">待上线</span></a>
+                <a class="nav-link" href="../about/index.html">关于我们</a>
             </nav>
 
             <div class="header-actions">
+            <button type="button" class="nav-login">会员登录</button>
             <button class="theme-toggle" id="themeToggle" type="button" aria-label="切换夜间模式" aria-pressed="false">
                 <svg class="icon icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
                 <svg class="icon icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
@@ -150,6 +145,9 @@
     </footer>
 
     <script src="../../assets/js/index.js"></script>
-    <script src="../../assets/js/formulas.js"></script>
+    <script src="../../assets/js/navbar.js"></script>
+    <script src="../../assets/js/formular/formulas.js"></script>
+    <script src="../../assets/js/setting.js"></script>
+    <script src="../../assets/js/formular/formular-editor.js"></script>
 </body>
 </html>

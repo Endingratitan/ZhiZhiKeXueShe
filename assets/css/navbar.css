@@ -1,0 +1,373 @@
+/* ============================================================
+   致知科学社 · 导航栏 / 页头样式（由 index.css 拆分而来）
+   ------------------------------------------------------------
+   覆盖：固定页头、品牌区、主导航、移动端汉堡菜单、
+         右侧操作组（会员登录 / 夜间模式切换）、社团培养下拉菜单、
+         页头下方建设提示条，以及相应响应式规则（≤1200px / ≤1000px）。
+   依赖：index.css 中的 CSS 变量与基础类（--accent / --ink / --line / .btn 等），
+         故本文件必须在 index.css 之后引入。
+   相关文件：设置按钮样式见 setting.css；公式模块见 css/formular/。
+   ============================================================ */
+/* ============================================================
+   导航栏
+   ============================================================ */
+.site-header {
+    position: fixed;
+    inset: 0 0 auto 0;
+    z-index: 100;
+    background: var(--header-bg);
+    -webkit-backdrop-filter: saturate(180%) blur(14px);
+    backdrop-filter: saturate(180%) blur(14px);
+    border-bottom: 1px solid transparent;
+    transition: box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+.site-header.scrolled {
+    border-color: var(--line);
+    box-shadow: var(--shadow-sm);
+}
+
+.header-inner {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 14px;
+    height: 76px;
+}
+
+.header-inner .brand { justify-self: start; }
+.brand-name { white-space: nowrap; }
+.site-nav { justify-self: center; }
+.header-actions { justify-self: end; }
+
+.brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.brand-logo {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    box-shadow: var(--shadow-sm);
+}
+
+.brand-name {
+    font-size: 19px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+.site-nav {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.nav-link {
+    position: relative;
+    padding: 8px 14px;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--muted);
+    transition: color 0.2s ease, background-color 0.2s ease;
+}
+
+.nav-link:hover { color: var(--ink); background: var(--accent-soft); }
+
+.nav-link.active { color: var(--accent-deep); font-weight: 600; }
+
+.nav-link.active::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    bottom: 2px;
+    width: 18px;
+    height: 3px;
+    border-radius: 3px;
+    background: linear-gradient(90deg, var(--accent), var(--accent-deep));
+    transform: translateX(-50%);
+}
+
+/* 汉堡按钮（移动端） */
+.nav-toggle {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+    width: 42px;
+    height: 42px;
+    padding: 9px;
+    border: none;
+    border-radius: 10px;
+    background: transparent;
+    cursor: pointer;
+}
+
+.nav-toggle span {
+    display: block;
+    width: 100%;
+    height: 2.5px;
+    border-radius: 2px;
+    background: var(--ink);
+    transition: transform 0.25s ease, opacity 0.25s ease;
+}
+
+.nav-toggle.active span:nth-child(1) { transform: translateY(7.5px) rotate(45deg); }
+.nav-toggle.active span:nth-child(2) { opacity: 0; }
+.nav-toggle.active span:nth-child(3) { transform: translateY(-7.5px) rotate(-45deg); }
+
+/* ============================================================
+   夜间模式切换按钮
+   ============================================================ */
+.theme-toggle {
+    position: relative;
+    width: 40px;
+    height: 40px;
+    margin-left: 4px;
+    display: grid;
+    place-items: center;
+    border: none;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--ink);
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.theme-toggle:hover { background: var(--accent-soft); }
+
+.theme-toggle .icon {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.theme-toggle .icon-sun { opacity: 1; transform: rotate(0deg) scale(1); }
+.theme-toggle .icon-moon { opacity: 0; transform: rotate(60deg) scale(0.5); }
+[data-theme="dark"] .theme-toggle .icon-sun { opacity: 0; transform: rotate(-60deg) scale(0.5); }
+[data-theme="dark"] .theme-toggle .icon-moon { opacity: 1; transform: rotate(0deg) scale(1); }
+
+/* ============================================================
+   导航操作组、登录按钮、待上线导航项
+   ============================================================ */
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+/* 会员登录：位于右侧操作组内（与主题、设置按钮一同右对齐） */
+.nav-login {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 6px 0 0;
+    padding: 9px 18px;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    background: transparent;
+    color: var(--ink);
+    font-family: inherit;
+    font-size: 14.5px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: border-color 0.2s ease, color 0.2s ease, background-color 0.2s ease;
+}
+
+.nav-login:hover {
+    border-color: var(--accent);
+    color: var(--accent-deep);
+    background: var(--accent-soft);
+}
+
+.nav-link-pending { cursor: default; }
+.nav-link-pending:hover { background: transparent; color: var(--muted); }
+
+.pending-badge {
+    display: inline-block;
+    margin-left: 5px;
+    padding: 0 6px;
+    border-radius: 999px;
+    font-size: 10.5px;
+    font-weight: 600;
+    line-height: 16px;
+    background: var(--accent-soft);
+    color: var(--accent-deep);
+    vertical-align: 1px;
+}
+
+/* ============================================================
+   社团培养下拉菜单
+   ============================================================ */
+.nav-dropdown { position: relative; }
+
+.nav-dropdown-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border: none;
+    background: transparent;
+    font-family: inherit;
+    cursor: pointer;
+}
+
+.nav-dropdown-btn .caret {
+    width: 12px;
+    height: 12px;
+    transition: transform 0.2s ease;
+}
+
+.nav-dropdown.open .nav-dropdown-btn .caret { transform: rotate(180deg); }
+
+.nav-dropdown-menu {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 50%;
+    min-width: 176px;
+    padding: 6px;
+    list-style: none;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    box-shadow: var(--shadow-md);
+    opacity: 0;
+    visibility: hidden;
+    transform: translate(-50%, -6px);
+    transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
+}
+
+.nav-dropdown.open .nav-dropdown-menu {
+    opacity: 1;
+    visibility: visible;
+    transform: translate(-50%, 0);
+}
+
+.nav-dropdown-menu .dropdown-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 9px 12px;
+    border-radius: 9px;
+}
+
+.nav-dropdown-menu .dropdown-item:hover {
+    background: var(--accent-soft);
+    color: var(--ink);
+}
+
+/* ============================================================
+   导航下方建设提示条
+   ============================================================ */
+.site-banner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 7px 16px 8px;
+    font-size: 13px;
+    letter-spacing: 0.3px;
+    color: var(--muted);
+    border-top: 1px solid var(--hairline);
+    background: linear-gradient(90deg, transparent 0%, var(--accent-soft) 28%, var(--accent-soft) 72%, transparent 100%);
+}
+
+.banner-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 8px var(--accent);
+    animation: banner-blink 2.4s ease-in-out infinite;
+}
+
+@keyframes banner-blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+}
+
+.site-banner { position: relative; padding-right: 46px; }
+
+.banner-close {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 24px;
+    height: 24px;
+    display: grid;
+    place-items: center;
+    border: none;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--muted);
+    font-size: 17px;
+    line-height: 1;
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.banner-close:hover { background: var(--accent-soft); color: var(--ink); }
+
+.site-banner.banner-hidden { display: none; }
+
+@media (max-width: 1200px) {
+    .nav-link { padding: 8px 9px; font-size: 14px; }
+    .nav-login { padding: 8px 14px; font-size: 14px; margin: 0 6px 0 0; }
+    .brand-name { font-size: 17px; }
+}
+
+@media (max-width: 1000px) {
+    .nav-toggle { display: flex; }
+
+    .site-nav {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 4px;
+        padding: 14px 4% 22px;
+        background: var(--card);
+        -webkit-backdrop-filter: blur(14px);
+        backdrop-filter: blur(14px);
+        border-bottom: 1px solid var(--line);
+        box-shadow: 0 18px 40px rgba(14, 27, 44, 0.12);
+        transform: translateY(-12px);
+        opacity: 0;
+        visibility: hidden;
+        transition: transform 0.25s ease, opacity 0.25s ease, visibility 0.25s;
+    }
+
+    .site-nav.open {
+        transform: translateY(0);
+        opacity: 1;
+        visibility: visible;
+    }
+
+    .nav-link { padding: 13px 14px; font-size: 16px; }
+    .nav-link.active::after { display: none; }
+    /* 「立即加入」CTA 已从导航移除；「会员登录」在窄屏隐藏，避免右侧操作组拥挤 */
+    .nav-login { display: none; }
+    .nav-dropdown-menu {
+        position: static;
+        transform: none;
+        opacity: 1;
+        visibility: visible;
+        display: none;
+        min-width: 0;
+        padding: 0 0 4px 16px;
+        background: transparent;
+        border: none;
+        border-radius: 0;
+        box-shadow: none;
+    }
+    .nav-dropdown.open .nav-dropdown-menu { display: block; }
+    .nav-dropdown-btn { width: 100%; justify-content: flex-start; }
+}
+
