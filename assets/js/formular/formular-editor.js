@@ -472,12 +472,23 @@
         statusEl.textContent = text || ('已保存 · ' + nowTime());
     }
 
-    /* 保存：先把表单（含 note_link 链接行）读回工作副本，再提交 API */
+    /* 保存：先把表单（含 note_link 链接行）读回工作副本，再提交 API。
+       写入是异步的（IndexedDB），因此要处理返回的 Promise：
+       失败时明确提示，避免"界面显示已保存、实际没写进去"。 */
     function save() {
         readForm();
-        API.setCustomData(deepCopy(workData));
+        var write = API.setCustomData(deepCopy(workData));
         updateDensityMax();
         markClean();
+        if (write && typeof write.then === 'function') {
+            write.then(function (ok) {
+                if (ok === false) {
+                    saveBtn.disabled = false;
+                    statusEl.setAttribute('data-state', 'dirty');
+                    statusEl.textContent = '保存失败：浏览器存储不可用，请检查隐私模式设置';
+                }
+            });
+        }
     }
 
     /* ============================================================

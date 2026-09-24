@@ -1,702 +1,702 @@
 [
     {
-        "formula": "F = ma",
-        "name": "牛顿第二定律",
-        "proposer": "艾萨克·牛顿（Isaac Newton）",
-        "theory": "经典力学 · 1687",
-        "note_link": []
+        "f": "F = ma",
+        "n": "牛顿第二定律",
+        "p": "艾萨克·牛顿（Isaac Newton）",
+        "t": "经典力学 · 1687",
+        "nl": []
     },
     {
-        "formula": "F = \\frac{G m_1 m_2}{r^2}",
-        "name": "万有引力定律",
-        "proposer": "艾萨克·牛顿（Isaac Newton）",
-        "theory": "经典力学 · 1687",
-        "note_link": []
+        "f": "F = \\frac{G m_1 m_2}{r^2}",
+        "n": "万有引力定律",
+        "p": "艾萨克·牛顿（Isaac Newton）",
+        "t": "经典力学 · 1687",
+        "nl": []
     },
     {
-        "formula": "p = mv",
-        "name": "动量定义",
-        "proposer": "勒内·笛卡尔（René Descartes）",
-        "theory": "经典力学 · 1644",
-        "note_link": []
+        "f": "p = mv",
+        "n": "动量定义",
+        "p": "勒内·笛卡尔（René Descartes）",
+        "t": "经典力学 · 1644",
+        "nl": []
     },
     {
-        "formula": "L = I\\omega",
-        "name": "角动量公式",
-        "proposer": "莱昂哈德·欧拉（Leonhard Euler）",
-        "theory": "刚体力学 · 1765",
-        "note_link": []
+        "f": "L = I\\omega",
+        "n": "角动量公式",
+        "p": "莱昂哈德·欧拉（Leonhard Euler）",
+        "t": "刚体力学 · 1765",
+        "nl": []
     },
     {
-        "formula": "\\tau = I\\alpha",
-        "name": "刚体转动定律",
-        "proposer": "莱昂哈德·欧拉（Leonhard Euler）",
-        "theory": "刚体力学 · 1765",
-        "note_link": []
+        "f": "\\tau = I\\alpha",
+        "n": "刚体转动定律",
+        "p": "莱昂哈德·欧拉（Leonhard Euler）",
+        "t": "刚体力学 · 1765",
+        "nl": []
     },
     {
-        "formula": "W = F d \\cos\\theta",
-        "name": "功的定义",
-        "proposer": "加斯帕尔-古斯塔夫·科里奥利（G.-G. Coriolis）",
-        "theory": "经典力学 · 1829",
-        "note_link": []
+        "f": "W = F d \\cos\\theta",
+        "n": "功的定义",
+        "p": "加斯帕尔-古斯塔夫·科里奥利（G.-G. Coriolis）",
+        "t": "经典力学 · 1829",
+        "nl": []
     },
     {
-        "formula": "K = \\tfrac{1}{2} m v^2",
-        "name": "动能公式",
-        "proposer": "戈特弗里德·莱布尼茨（G. W. Leibniz）",
-        "theory": "经典力学 · 1686",
-        "note_link": []
+        "f": "K = \\tfrac{1}{2} m v^2",
+        "n": "动能公式",
+        "p": "戈特弗里德·莱布尼茨（G. W. Leibniz）",
+        "t": "经典力学 · 1686",
+        "nl": []
     },
     {
-        "formula": "F = -kx",
-        "name": "胡克定律",
-        "proposer": "罗伯特·胡克（Robert Hooke）",
-        "theory": "弹性力学 · 1660",
-        "note_link": []
+        "f": "F = -kx",
+        "n": "胡克定律",
+        "p": "罗伯特·胡克（Robert Hooke）",
+        "t": "弹性力学 · 1660",
+        "nl": []
     },
     {
-        "formula": "T = 2\\pi \\sqrt{\\frac{L}{g}}",
-        "name": "单摆周期公式",
-        "proposer": "克里斯蒂安·惠更斯（Christiaan Huygens）",
-        "theory": "经典力学 · 1673",
-        "note_link": []
+        "f": "T = 2\\pi \\sqrt{\\frac{L}{g}}",
+        "n": "单摆周期公式",
+        "p": "克里斯蒂安·惠更斯（Christiaan Huygens）",
+        "t": "经典力学 · 1673",
+        "nl": []
     },
     {
-        "formula": "F = \\frac{m v^2}{r}",
-        "name": "向心力公式",
-        "proposer": "克里斯蒂安·惠更斯（Christiaan Huygens）",
-        "theory": "圆周运动 · 1659",
-        "note_link": []
+        "f": "F = \\frac{m v^2}{r}",
+        "n": "向心力公式",
+        "p": "克里斯蒂安·惠更斯（Christiaan Huygens）",
+        "t": "圆周运动 · 1659",
+        "nl": []
     },
     {
-        "formula": "F = \\frac{k q_1 q_2}{r^2}",
-        "name": "库仑定律",
-        "proposer": "夏尔·库仑（Charles Coulomb）",
-        "theory": "静电学 · 1785",
-        "note_link": []
+        "f": "F = \\frac{k q_1 q_2}{r^2}",
+        "n": "库仑定律",
+        "p": "夏尔·库仑（Charles Coulomb）",
+        "t": "静电学 · 1785",
+        "nl": []
     },
     {
-        "formula": "E = \\frac{F}{q}",
-        "name": "电场强度定义",
-        "proposer": "迈克尔·法拉第（Michael Faraday）",
-        "theory": "电磁学 · 1837",
-        "note_link": []
+        "f": "E = \\frac{F}{q}",
+        "n": "电场强度定义",
+        "p": "迈克尔·法拉第（Michael Faraday）",
+        "t": "电磁学 · 1837",
+        "nl": []
     },
     {
-        "formula": "\\oint \\vec{E}\\cdot d\\vec{A} = \\frac{Q}{\\varepsilon_0}",
-        "name": "高斯定律",
-        "proposer": "卡尔·弗里德里希·高斯（C. F. Gauss）",
-        "theory": "静电学 · 1835",
-        "note_link": []
+        "f": "\\oint \\vec{E}\\cdot d\\vec{A} = \\frac{Q}{\\varepsilon_0}",
+        "n": "高斯定律",
+        "p": "卡尔·弗里德里希·高斯（C. F. Gauss）",
+        "t": "静电学 · 1835",
+        "nl": []
     },
     {
-        "formula": "V = IR",
-        "name": "欧姆定律",
-        "proposer": "格奥尔格·欧姆（Georg Ohm）",
-        "theory": "电路 · 1827",
-        "note_link": []
+        "f": "V = IR",
+        "n": "欧姆定律",
+        "p": "格奥尔格·欧姆（Georg Ohm）",
+        "t": "电路 · 1827",
+        "nl": []
     },
     {
-        "formula": "P = IV",
-        "name": "电功率公式",
-        "proposer": "詹姆斯·焦耳（James Joule）",
-        "theory": "电路 · 1841",
-        "note_link": []
+        "f": "P = IV",
+        "n": "电功率公式",
+        "p": "詹姆斯·焦耳（James Joule）",
+        "t": "电路 · 1841",
+        "nl": []
     },
     {
-        "formula": "\\vec{F} = q\\vec{v} \\times \\vec{B}",
-        "name": "磁场中的洛伦兹力",
-        "proposer": "亨德里克·洛伦兹（Hendrik Lorentz）",
-        "theory": "电磁学 · 1895",
-        "note_link": []
+        "f": "\\vec{F} = q\\vec{v} \\times \\vec{B}",
+        "n": "磁场中的洛伦兹力",
+        "p": "亨德里克·洛伦兹（Hendrik Lorentz）",
+        "t": "电磁学 · 1895",
+        "nl": []
     },
     {
-        "formula": "\\nabla\\times\\vec{E} = -\\frac{\\partial\\vec{B}}{\\partial t}",
-        "name": "法拉第电磁感应定律",
-        "proposer": "迈克尔·法拉第（Michael Faraday）",
-        "theory": "电磁学 · 1831",
-        "note_link": []
+        "f": "\\nabla\\times\\vec{E} = -\\frac{\\partial\\vec{B}}{\\partial t}",
+        "n": "法拉第电磁感应定律",
+        "p": "迈克尔·法拉第（Michael Faraday）",
+        "t": "电磁学 · 1831",
+        "nl": []
     },
     {
-        "formula": "\\oint \\vec{B}\\cdot d\\vec{l} = \\mu_0 I",
-        "name": "安培环路定理",
-        "proposer": "安德烈-玛丽·安培（A.-M. Ampère）",
-        "theory": "电磁学 · 1826",
-        "note_link": []
+        "f": "\\oint \\vec{B}\\cdot d\\vec{l} = \\mu_0 I",
+        "n": "安培环路定理",
+        "p": "安德烈-玛丽·安培（A.-M. Ampère）",
+        "t": "电磁学 · 1826",
+        "nl": []
     },
     {
-        "formula": "\\nabla\\cdot\\vec{E} = \\frac{\\rho}{\\varepsilon_0}",
-        "name": "高斯定律（微分形式）",
-        "proposer": "卡尔·弗里德里希·高斯 / 麦克斯韦",
-        "theory": "电磁学 · 1861",
-        "note_link": []
+        "f": "\\nabla\\cdot\\vec{E} = \\frac{\\rho}{\\varepsilon_0}",
+        "n": "高斯定律（微分形式）",
+        "p": "卡尔·弗里德里希·高斯 / 麦克斯韦",
+        "t": "电磁学 · 1861",
+        "nl": []
     },
     {
-        "formula": "\\nabla\\cdot\\vec{B} = 0",
-        "name": "磁通连续性（无磁单极）",
-        "proposer": "卡尔·弗里德里希·高斯（C. F. Gauss）",
-        "theory": "电磁学 · 1861",
-        "note_link": []
+        "f": "\\nabla\\cdot\\vec{B} = 0",
+        "n": "磁通连续性（无磁单极）",
+        "p": "卡尔·弗里德里希·高斯（C. F. Gauss）",
+        "t": "电磁学 · 1861",
+        "nl": []
     },
     {
-        "formula": "\\vec{F} = q(\\vec{E} + \\vec{v}\\times\\vec{B})",
-        "name": "洛伦兹力完整公式",
-        "proposer": "亨德里克·洛伦兹（Hendrik Lorentz）",
-        "theory": "电磁学 · 1895",
-        "note_link": []
+        "f": "\\vec{F} = q(\\vec{E} + \\vec{v}\\times\\vec{B})",
+        "n": "洛伦兹力完整公式",
+        "p": "亨德里克·洛伦兹（Hendrik Lorentz）",
+        "t": "电磁学 · 1895",
+        "nl": []
     },
     {
-        "formula": "PV = nRT",
-        "name": "理想气体状态方程",
-        "proposer": "埃米尔·克拉珀龙（Émile Clapeyron）",
-        "theory": "热力学 · 1834",
-        "note_link": []
+        "f": "PV = nRT",
+        "n": "理想气体状态方程",
+        "p": "埃米尔·克拉珀龙（Émile Clapeyron）",
+        "t": "热力学 · 1834",
+        "nl": []
     },
     {
-        "formula": "\\Delta U = Q - W",
-        "name": "热力学第一定律",
-        "proposer": "鲁道夫·克劳修斯（Rudolf Clausius）",
-        "theory": "热力学 · 1850",
-        "note_link": []
+        "f": "\\Delta U = Q - W",
+        "n": "热力学第一定律",
+        "p": "鲁道夫·克劳修斯（Rudolf Clausius）",
+        "t": "热力学 · 1850",
+        "nl": []
     },
     {
-        "formula": "\\Delta S \\geq 0",
-        "name": "熵增原理（第二定律）",
-        "proposer": "鲁道夫·克劳修斯（Rudolf Clausius）",
-        "theory": "热力学 · 1865",
-        "note_link": []
+        "f": "\\Delta S \\geq 0",
+        "n": "熵增原理（第二定律）",
+        "p": "鲁道夫·克劳修斯（Rudolf Clausius）",
+        "t": "热力学 · 1865",
+        "nl": []
     },
     {
-        "formula": "S = k\\ln W",
-        "name": "玻尔兹曼熵公式",
-        "proposer": "路德维希·玻尔兹曼（Ludwig Boltzmann）",
-        "theory": "统计力学 · 1877",
-        "note_link": []
+        "f": "S = k\\ln W",
+        "n": "玻尔兹曼熵公式",
+        "p": "路德维希·玻尔兹曼（Ludwig Boltzmann）",
+        "t": "统计力学 · 1877",
+        "nl": []
     },
     {
-        "formula": "\\eta = 1 - \\frac{T_c}{T_h}",
-        "name": "卡诺热机效率",
-        "proposer": "萨迪·卡诺（Sadi Carnot）",
-        "theory": "热力学 · 1824",
-        "note_link": []
+        "f": "\\eta = 1 - \\frac{T_c}{T_h}",
+        "n": "卡诺热机效率",
+        "p": "萨迪·卡诺（Sadi Carnot）",
+        "t": "热力学 · 1824",
+        "nl": []
     },
     {
-        "formula": "\\vec{q} = -k\\nabla T",
-        "name": "傅里叶导热定律",
-        "proposer": "约瑟夫·傅里叶（Joseph Fourier）",
-        "theory": "热传导 · 1822",
-        "note_link": []
+        "f": "\\vec{q} = -k\\nabla T",
+        "n": "傅里叶导热定律",
+        "p": "约瑟夫·傅里叶（Joseph Fourier）",
+        "t": "热传导 · 1822",
+        "nl": []
     },
     {
-        "formula": "P = \\tfrac{1}{3} n m \\bar{v}^2",
-        "name": "理想气体压强（动理论）",
-        "proposer": "丹尼尔·伯努利（Daniel Bernoulli）",
-        "theory": "气体动理论 · 1738",
-        "note_link": []
+        "f": "P = \\tfrac{1}{3} n m \\bar{v}^2",
+        "n": "理想气体压强（动理论）",
+        "p": "丹尼尔·伯努利（Daniel Bernoulli）",
+        "t": "气体动理论 · 1738",
+        "nl": []
     },
     {
-        "formula": "C = \\frac{Q}{\\Delta T}",
-        "name": "热容定义",
-        "proposer": "约瑟夫·布莱克（Joseph Black）",
-        "theory": "热学 · 1760",
-        "note_link": []
+        "f": "C = \\frac{Q}{\\Delta T}",
+        "n": "热容定义",
+        "p": "约瑟夫·布莱克（Joseph Black）",
+        "t": "热学 · 1760",
+        "nl": []
     },
     {
-        "formula": "Q = mL",
-        "name": "相变潜热公式",
-        "proposer": "约瑟夫·布莱克（Joseph Black）",
-        "theory": "热学 · 1761",
-        "note_link": []
+        "f": "Q = mL",
+        "n": "相变潜热公式",
+        "p": "约瑟夫·布莱克（Joseph Black）",
+        "t": "热学 · 1761",
+        "nl": []
     },
     {
-        "formula": "E = h\\nu",
-        "name": "普朗克能量子假设",
-        "proposer": "马克斯·普朗克（Max Planck）",
-        "theory": "量子论 · 1900",
-        "note_link": []
+        "f": "E = h\\nu",
+        "n": "普朗克能量子假设",
+        "p": "马克斯·普朗克（Max Planck）",
+        "t": "量子论 · 1900",
+        "nl": []
     },
     {
-        "formula": "i\\hbar \\frac{\\partial \\psi}{\\partial t} = \\hat{H}\\psi",
-        "name": "薛定谔方程",
-        "proposer": "埃尔温·薛定谔（Erwin Schrödinger）",
-        "theory": "量子力学 · 1926",
-        "note_link": []
+        "f": "i\\hbar \\frac{\\partial \\psi}{\\partial t} = \\hat{H}\\psi",
+        "n": "薛定谔方程",
+        "p": "埃尔温·薛定谔（Erwin Schrödinger）",
+        "t": "量子力学 · 1926",
+        "nl": []
     },
     {
-        "formula": "\\Delta x\\,\\Delta p \\geq \\frac{\\hbar}{2}",
-        "name": "海森堡不确定性原理",
-        "proposer": "维尔纳·海森堡（Werner Heisenberg）",
-        "theory": "量子力学 · 1927",
-        "note_link": []
+        "f": "\\Delta x\\,\\Delta p \\geq \\frac{\\hbar}{2}",
+        "n": "海森堡不确定性原理",
+        "p": "维尔纳·海森堡（Werner Heisenberg）",
+        "t": "量子力学 · 1927",
+        "nl": []
     },
     {
-        "formula": "\\lambda = \\frac{h}{p}",
-        "name": "德布罗意物质波关系",
-        "proposer": "路易·德布罗意（Louis de Broglie）",
-        "theory": "量子力学 · 1924",
-        "note_link": []
+        "f": "\\lambda = \\frac{h}{p}",
+        "n": "德布罗意物质波关系",
+        "p": "路易·德布罗意（Louis de Broglie）",
+        "t": "量子力学 · 1924",
+        "nl": []
     },
     {
-        "formula": "E_k = h\\nu - W_0",
-        "name": "光电效应方程",
-        "proposer": "阿尔伯特·爱因斯坦（Albert Einstein）",
-        "theory": "量子论 · 1905",
-        "note_link": []
+        "f": "E_k = h\\nu - W_0",
+        "n": "光电效应方程",
+        "p": "阿尔伯特·爱因斯坦（Albert Einstein）",
+        "t": "量子论 · 1905",
+        "nl": []
     },
     {
-        "formula": "\\psi(x,t) = A e^{i(kx - \\omega t)}",
-        "name": "自由粒子平面波",
-        "proposer": "埃尔温·薛定谔（Erwin Schrödinger）",
-        "theory": "量子力学 · 1926",
-        "note_link": []
+        "f": "\\psi(x,t) = A e^{i(kx - \\omega t)}",
+        "n": "自由粒子平面波",
+        "p": "埃尔温·薛定谔（Erwin Schrödinger）",
+        "t": "量子力学 · 1926",
+        "nl": []
     },
     {
-        "formula": "E_n = -\\frac{13.6}{n^2}\\,\\mathrm{eV}",
-        "name": "氢原子能级公式",
-        "proposer": "尼尔斯·玻尔（Niels Bohr）",
-        "theory": "原子物理 · 1913",
-        "note_link": []
+        "f": "E_n = -\\frac{13.6}{n^2}\\,\\mathrm{eV}",
+        "n": "氢原子能级公式",
+        "p": "尼尔斯·玻尔（Niels Bohr）",
+        "t": "原子物理 · 1913",
+        "nl": []
     },
     {
-        "formula": "r_n = n^2 a_0",
-        "name": "玻尔轨道半径",
-        "proposer": "尼尔斯·玻尔（Niels Bohr）",
-        "theory": "原子物理 · 1913",
-        "note_link": []
+        "f": "r_n = n^2 a_0",
+        "n": "玻尔轨道半径",
+        "p": "尼尔斯·玻尔（Niels Bohr）",
+        "t": "原子物理 · 1913",
+        "nl": []
     },
     {
-        "formula": "E = -\\vec{\\mu}\\cdot\\vec{B}",
-        "name": "磁矩在磁场中的能量",
-        "proposer": "沃尔夫冈·泡利（Wolfgang Pauli）",
-        "theory": "量子力学 · 1925",
-        "note_link": []
+        "f": "E = -\\vec{\\mu}\\cdot\\vec{B}",
+        "n": "磁矩在磁场中的能量",
+        "p": "沃尔夫冈·泡利（Wolfgang Pauli）",
+        "t": "量子力学 · 1925",
+        "nl": []
     },
     {
-        "formula": "\\psi = \\sum_n c_n \\psi_n",
-        "name": "态叠加原理",
-        "proposer": "保罗·狄拉克（Paul Dirac）",
-        "theory": "量子力学 · 1930",
-        "note_link": []
+        "f": "\\psi = \\sum_n c_n \\psi_n",
+        "n": "态叠加原理",
+        "p": "保罗·狄拉克（Paul Dirac）",
+        "t": "量子力学 · 1930",
+        "nl": []
     },
     {
-        "formula": "E = mc^2",
-        "name": "质能方程",
-        "proposer": "阿尔伯特·爱因斯坦（Albert Einstein）",
-        "theory": "狭义相对论 · 1905",
-        "note_link": []
+        "f": "E = mc^2",
+        "n": "质能方程",
+        "p": "阿尔伯特·爱因斯坦（Albert Einstein）",
+        "t": "狭义相对论 · 1905",
+        "nl": []
     },
     {
-        "formula": "E^2 = (pc)^2 + (m_0 c^2)^2",
-        "name": "相对论能量动量关系",
-        "proposer": "阿尔伯特·爱因斯坦（Albert Einstein）",
-        "theory": "狭义相对论 · 1905",
-        "note_link": []
+        "f": "E^2 = (pc)^2 + (m_0 c^2)^2",
+        "n": "相对论能量动量关系",
+        "p": "阿尔伯特·爱因斯坦（Albert Einstein）",
+        "t": "狭义相对论 · 1905",
+        "nl": []
     },
     {
-        "formula": "\\gamma = \\frac{1}{\\sqrt{1 - v^2/c^2}}",
-        "name": "洛伦兹因子",
-        "proposer": "亨德里克·洛伦兹（Hendrik Lorentz）",
-        "theory": "狭义相对论 · 1904",
-        "note_link": []
+        "f": "\\gamma = \\frac{1}{\\sqrt{1 - v^2/c^2}}",
+        "n": "洛伦兹因子",
+        "p": "亨德里克·洛伦兹（Hendrik Lorentz）",
+        "t": "狭义相对论 · 1904",
+        "nl": []
     },
     {
-        "formula": "G_{\\mu\\nu} = \\frac{8\\pi G}{c^4} T_{\\mu\\nu}",
-        "name": "爱因斯坦场方程",
-        "proposer": "阿尔伯特·爱因斯坦（Albert Einstein）",
-        "theory": "广义相对论 · 1915",
-        "note_link": []
+        "f": "G_{\\mu\\nu} = \\frac{8\\pi G}{c^4} T_{\\mu\\nu}",
+        "n": "爱因斯坦场方程",
+        "p": "阿尔伯特·爱因斯坦（Albert Einstein）",
+        "t": "广义相对论 · 1915",
+        "nl": []
     },
     {
-        "formula": "R_{\\mu\\nu} - \\tfrac{1}{2}R g_{\\mu\\nu} = \\kappa T_{\\mu\\nu}",
-        "name": "场方程（曲率形式）",
-        "proposer": "爱因斯坦 / 大卫·希尔伯特",
-        "theory": "广义相对论 · 1915",
-        "note_link": []
+        "f": "R_{\\mu\\nu} - \\tfrac{1}{2}R g_{\\mu\\nu} = \\kappa T_{\\mu\\nu}",
+        "n": "场方程（曲率形式）",
+        "p": "爱因斯坦 / 大卫·希尔伯特",
+        "t": "广义相对论 · 1915",
+        "nl": []
     },
     {
-        "formula": "ds^2 = -c^2 dt^2 + dx^2 + dy^2 + dz^2",
-        "name": "闵可夫斯基度规",
-        "proposer": "赫尔曼·闵可夫斯基（Hermann Minkowski）",
-        "theory": "狭义相对论 · 1908",
-        "note_link": []
+        "f": "ds^2 = -c^2 dt^2 + dx^2 + dy^2 + dz^2",
+        "n": "闵可夫斯基度规",
+        "p": "赫尔曼·闵可夫斯基（Hermann Minkowski）",
+        "t": "狭义相对论 · 1908",
+        "nl": []
     },
     {
-        "formula": "\\Delta t = \\gamma \\Delta t_0",
-        "name": "时间膨胀效应",
-        "proposer": "阿尔伯特·爱因斯坦（Albert Einstein）",
-        "theory": "狭义相对论 · 1905",
-        "note_link": []
+        "f": "\\Delta t = \\gamma \\Delta t_0",
+        "n": "时间膨胀效应",
+        "p": "阿尔伯特·爱因斯坦（Albert Einstein）",
+        "t": "狭义相对论 · 1905",
+        "nl": []
     },
     {
-        "formula": "f' = f\\sqrt{\\frac{1 - v/c}{1 + v/c}}",
-        "name": "相对论多普勒效应",
-        "proposer": "阿尔伯特·爱因斯坦（Albert Einstein）",
-        "theory": "狭义相对论 · 1905",
-        "note_link": []
+        "f": "f' = f\\sqrt{\\frac{1 - v/c}{1 + v/c}}",
+        "n": "相对论多普勒效应",
+        "p": "阿尔伯特·爱因斯坦（Albert Einstein）",
+        "t": "狭义相对论 · 1905",
+        "nl": []
     },
     {
-        "formula": "\\rho\\left(\\frac{\\partial \\vec{v}}{\\partial t} + \\vec{v}\\cdot\\nabla\\vec{v}\\right) = -\\nabla p + \\mu\\nabla^2\\vec{v} + \\vec{f}",
-        "name": "纳维-斯托克斯方程",
-        "proposer": "纳维（Navier）/ 斯托克斯（Stokes）",
-        "theory": "流体力学 · 1845",
-        "note_link": []
+        "f": "\\rho\\left(\\frac{\\partial \\vec{v}}{\\partial t} + \\vec{v}\\cdot\\nabla\\vec{v}\\right) = -\\nabla p + \\mu\\nabla^2\\vec{v} + \\vec{f}",
+        "n": "纳维-斯托克斯方程",
+        "p": "纳维（Navier）/ 斯托克斯（Stokes）",
+        "t": "流体力学 · 1845",
+        "nl": []
     },
     {
-        "formula": "\\frac{\\partial\\rho}{\\partial t} + \\nabla\\cdot(\\rho\\vec{v}) = 0",
-        "name": "连续性方程",
-        "proposer": "莱昂哈德·欧拉（Leonhard Euler）",
-        "theory": "流体力学 · 1757",
-        "note_link": []
+        "f": "\\frac{\\partial\\rho}{\\partial t} + \\nabla\\cdot(\\rho\\vec{v}) = 0",
+        "n": "连续性方程",
+        "p": "莱昂哈德·欧拉（Leonhard Euler）",
+        "t": "流体力学 · 1757",
+        "nl": []
     },
     {
-        "formula": "P + \\tfrac{1}{2}\\rho v^2 + \\rho g h = \\text{const.}",
-        "name": "伯努利方程",
-        "proposer": "丹尼尔·伯努利（Daniel Bernoulli）",
-        "theory": "流体力学 · 1738",
-        "note_link": []
+        "f": "P + \\tfrac{1}{2}\\rho v^2 + \\rho g h = \\text{const.}",
+        "n": "伯努利方程",
+        "p": "丹尼尔·伯努利（Daniel Bernoulli）",
+        "t": "流体力学 · 1738",
+        "nl": []
     },
     {
-        "formula": "F_b = \\rho g V",
-        "name": "阿基米德浮力定律",
-        "proposer": "阿基米德（Archimedes）",
-        "theory": "流体静力学 · 公元前250年",
-        "note_link": []
+        "f": "F_b = \\rho g V",
+        "n": "阿基米德浮力定律",
+        "p": "阿基米德（Archimedes）",
+        "t": "流体静力学 · 公元前250年",
+        "nl": []
     },
     {
-        "formula": "Re = \\frac{\\rho v L}{\\mu}",
-        "name": "雷诺数",
-        "proposer": "奥斯本·雷诺（Osborne Reynolds）",
-        "theory": "流体力学 · 1883",
-        "note_link": []
+        "f": "Re = \\frac{\\rho v L}{\\mu}",
+        "n": "雷诺数",
+        "p": "奥斯本·雷诺（Osborne Reynolds）",
+        "t": "流体力学 · 1883",
+        "nl": []
     },
     {
-        "formula": "Q = \\frac{\\pi r^4 \\Delta P}{8\\mu L}",
-        "name": "泊肃叶定律",
-        "proposer": "让·泊肃叶（Jean Poiseuille）",
-        "theory": "流体力学 · 1838",
-        "note_link": []
+        "f": "Q = \\frac{\\pi r^4 \\Delta P}{8\\mu L}",
+        "n": "泊肃叶定律",
+        "p": "让·泊肃叶（Jean Poiseuille）",
+        "t": "流体力学 · 1838",
+        "nl": []
     },
     {
-        "formula": "v = \\sqrt{2gh}",
-        "name": "托里拆利定律",
-        "proposer": "埃万杰利斯塔·托里拆利（E. Torricelli）",
-        "theory": "流体力学 · 1643",
-        "note_link": []
+        "f": "v = \\sqrt{2gh}",
+        "n": "托里拆利定律",
+        "p": "埃万杰利斯塔·托里拆利（E. Torricelli）",
+        "t": "流体力学 · 1643",
+        "nl": []
     },
     {
-        "formula": "Ra = \\frac{g\\beta\\Delta T L^3}{\\nu\\alpha}",
-        "name": "瑞利数",
-        "proposer": "瑞利勋爵（Lord Rayleigh）",
-        "theory": "对流换热 · 1916",
-        "note_link": []
+        "f": "Ra = \\frac{g\\beta\\Delta T L^3}{\\nu\\alpha}",
+        "n": "瑞利数",
+        "p": "瑞利勋爵（Lord Rayleigh）",
+        "t": "对流换热 · 1916",
+        "nl": []
     },
     {
-        "formula": "v = f\\lambda",
-        "name": "波速公式",
-        "proposer": "通用波动学基本关系",
-        "theory": "波动学 · 基础关系",
-        "note_link": []
+        "f": "v = f\\lambda",
+        "n": "波速公式",
+        "p": "通用波动学基本关系",
+        "t": "波动学 · 基础关系",
+        "nl": []
     },
     {
-        "formula": "n_1\\sin\\theta_1 = n_2\\sin\\theta_2",
-        "name": "斯涅尔折射定律",
-        "proposer": "威理博·斯涅尔（Willebrord Snellius）",
-        "theory": "光学 · 1621",
-        "note_link": []
+        "f": "n_1\\sin\\theta_1 = n_2\\sin\\theta_2",
+        "n": "斯涅尔折射定律",
+        "p": "威理博·斯涅尔（Willebrord Snellius）",
+        "t": "光学 · 1621",
+        "nl": []
     },
     {
-        "formula": "\\frac{1}{f} = \\frac{1}{d_o} + \\frac{1}{d_i}",
-        "name": "薄透镜成像公式",
-        "proposer": "卡尔·弗里德里希·高斯（C. F. Gauss）",
-        "theory": "几何光学 · 1841",
-        "note_link": []
+        "f": "\\frac{1}{f} = \\frac{1}{d_o} + \\frac{1}{d_i}",
+        "n": "薄透镜成像公式",
+        "p": "卡尔·弗里德里希·高斯（C. F. Gauss）",
+        "t": "几何光学 · 1841",
+        "nl": []
     },
     {
-        "formula": "d\\sin\\theta = m\\lambda",
-        "name": "光栅衍射方程",
-        "proposer": "约瑟夫·夫琅禾费（J. von Fraunhofer）",
-        "theory": "波动光学 · 1821",
-        "note_link": []
+        "f": "d\\sin\\theta = m\\lambda",
+        "n": "光栅衍射方程",
+        "p": "约瑟夫·夫琅禾费（J. von Fraunhofer）",
+        "t": "波动光学 · 1821",
+        "nl": []
     },
     {
-        "formula": "E = \\frac{hc}{\\lambda}",
-        "name": "光子能量公式",
-        "proposer": "爱因斯坦 / 普朗克",
-        "theory": "量子光学 · 1905",
-        "note_link": []
+        "f": "E = \\frac{hc}{\\lambda}",
+        "n": "光子能量公式",
+        "p": "爱因斯坦 / 普朗克",
+        "t": "量子光学 · 1905",
+        "nl": []
     },
     {
-        "formula": "I = I_0\\cos^2\\theta",
-        "name": "马吕斯定律",
-        "proposer": "艾蒂安-路易·马吕斯（É.-L. Malus）",
-        "theory": "偏振光学 · 1809",
-        "note_link": []
+        "f": "I = I_0\\cos^2\\theta",
+        "n": "马吕斯定律",
+        "p": "艾蒂安-路易·马吕斯（É.-L. Malus）",
+        "t": "偏振光学 · 1809",
+        "nl": []
     },
     {
-        "formula": "n = \\frac{c}{v}",
-        "name": "折射率定义",
-        "proposer": "斯涅尔 / 勒内·笛卡尔",
-        "theory": "光学 · 1621",
-        "note_link": []
+        "f": "n = \\frac{c}{v}",
+        "n": "折射率定义",
+        "p": "斯涅尔 / 勒内·笛卡尔",
+        "t": "光学 · 1621",
+        "nl": []
     },
     {
-        "formula": "\\theta = 1.22\\frac{\\lambda}{D}",
-        "name": "瑞利判据",
-        "proposer": "瑞利勋爵（Lord Rayleigh）",
-        "theory": "光学 · 1879",
-        "note_link": []
+        "f": "\\theta = 1.22\\frac{\\lambda}{D}",
+        "n": "瑞利判据",
+        "p": "瑞利勋爵（Lord Rayleigh）",
+        "t": "光学 · 1879",
+        "nl": []
     },
     {
-        "formula": "e^{i\\pi} + 1 = 0",
-        "name": "欧拉恒等式",
-        "proposer": "莱昂哈德·欧拉（Leonhard Euler）",
-        "theory": "数学 · 1748",
-        "note_link": []
+        "f": "e^{i\\pi} + 1 = 0",
+        "n": "欧拉恒等式",
+        "p": "莱昂哈德·欧拉（Leonhard Euler）",
+        "t": "数学 · 1748",
+        "nl": []
     },
     {
-        "formula": "\\int_{-\\infty}^{\\infty} e^{-x^2}\\,dx = \\sqrt{\\pi}",
-        "name": "高斯积分",
-        "proposer": "卡尔·弗里德里希·高斯（C. F. Gauss）",
-        "theory": "数学 · 1809",
-        "note_link": []
+        "f": "\\int_{-\\infty}^{\\infty} e^{-x^2}\\,dx = \\sqrt{\\pi}",
+        "n": "高斯积分",
+        "p": "卡尔·弗里德里希·高斯（C. F. Gauss）",
+        "t": "数学 · 1809",
+        "nl": []
     },
     {
-        "formula": "\\zeta(s) = \\sum_{n=1}^{\\infty} \\frac{1}{n^s}",
-        "name": "黎曼ζ函数",
-        "proposer": "伯恩哈德·黎曼（Bernhard Riemann）",
-        "theory": "数学 · 1859",
-        "note_link": []
+        "f": "\\zeta(s) = \\sum_{n=1}^{\\infty} \\frac{1}{n^s}",
+        "n": "黎曼ζ函数",
+        "p": "伯恩哈德·黎曼（Bernhard Riemann）",
+        "t": "数学 · 1859",
+        "nl": []
     },
     {
-        "formula": "\\nabla^2\\varphi = 0",
-        "name": "拉普拉斯方程",
-        "proposer": "皮埃尔-西蒙·拉普拉斯（P.-S. Laplace）",
-        "theory": "数学物理 · 1782",
-        "note_link": []
+        "f": "\\nabla^2\\varphi = 0",
+        "n": "拉普拉斯方程",
+        "p": "皮埃尔-西蒙·拉普拉斯（P.-S. Laplace）",
+        "t": "数学物理 · 1782",
+        "nl": []
     },
     {
-        "formula": "\\delta S = 0",
-        "name": "最小作用量原理",
-        "proposer": "皮埃尔·莫佩尔蒂（P.-L. Maupertuis）",
-        "theory": "分析力学 · 1744",
-        "note_link": []
+        "f": "\\delta S = 0",
+        "n": "最小作用量原理",
+        "p": "皮埃尔·莫佩尔蒂（P.-L. Maupertuis）",
+        "t": "分析力学 · 1744",
+        "nl": []
     },
     {
-        "formula": "\\frac{d\\vec{L}}{dt} = \\vec{\\tau}",
-        "name": "角动量定理",
-        "proposer": "莱昂哈德·欧拉（Leonhard Euler）",
-        "theory": "刚体力学 · 1765",
-        "note_link": []
+        "f": "\\frac{d\\vec{L}}{dt} = \\vec{\\tau}",
+        "n": "角动量定理",
+        "p": "莱昂哈德·欧拉（Leonhard Euler）",
+        "t": "刚体力学 · 1765",
+        "nl": []
     },
     {
-        "formula": "P(A\\cup B) = P(A) + P(B)",
-        "name": "概率加法法则",
-        "proposer": "布莱兹·帕斯卡（Blaise Pascal）",
-        "theory": "概率论 · 1654",
-        "note_link": []
+        "f": "P(A\\cup B) = P(A) + P(B)",
+        "n": "概率加法法则",
+        "p": "布莱兹·帕斯卡（Blaise Pascal）",
+        "t": "概率论 · 1654",
+        "nl": []
     },
     {
-        "formula": "\\sigma = \\sqrt{\\frac{1}{N}\\sum (x - \\mu)^2}",
-        "name": "标准差",
-        "proposer": "卡尔·皮尔逊（Karl Pearson）",
-        "theory": "统计学 · 1893",
-        "note_link": []
+        "f": "\\sigma = \\sqrt{\\frac{1}{N}\\sum (x - \\mu)^2}",
+        "n": "标准差",
+        "p": "卡尔·皮尔逊（Karl Pearson）",
+        "t": "统计学 · 1893",
+        "nl": []
     },
     {
-        "formula": "x = x_0 + v_0 t + \\tfrac{1}{2} a t^2",
-        "name": "匀变速直线运动",
-        "proposer": "伽利略·伽利莱（Galileo Galilei）",
-        "theory": "运动学 · 1638",
-        "note_link": []
+        "f": "x = x_0 + v_0 t + \\tfrac{1}{2} a t^2",
+        "n": "匀变速直线运动",
+        "p": "伽利略·伽利莱（Galileo Galilei）",
+        "t": "运动学 · 1638",
+        "nl": []
     },
     {
-        "formula": "v = v_0 + at",
-        "name": "匀变速速度公式",
-        "proposer": "伽利略·伽利莱（Galileo Galilei）",
-        "theory": "运动学 · 1638",
-        "note_link": []
+        "f": "v = v_0 + at",
+        "n": "匀变速速度公式",
+        "p": "伽利略·伽利莱（Galileo Galilei）",
+        "t": "运动学 · 1638",
+        "nl": []
     },
     {
-        "formula": "m_1 v_1 + m_2 v_2 = m_1 v_1' + m_2 v_2'",
-        "name": "动量守恒定律",
-        "proposer": "笛卡尔 / 艾萨克·牛顿",
-        "theory": "经典力学 · 1687",
-        "note_link": []
+        "f": "m_1 v_1 + m_2 v_2 = m_1 v_1' + m_2 v_2'",
+        "n": "动量守恒定律",
+        "p": "笛卡尔 / 艾萨克·牛顿",
+        "t": "经典力学 · 1687",
+        "nl": []
     },
     {
-        "formula": "E = K + U",
-        "name": "机械能守恒",
-        "proposer": "尤利乌斯·冯·迈尔（Julius von Mayer）",
-        "theory": "能量守恒 · 1842",
-        "note_link": []
+        "f": "E = K + U",
+        "n": "机械能守恒",
+        "p": "尤利乌斯·冯·迈尔（Julius von Mayer）",
+        "t": "能量守恒 · 1842",
+        "nl": []
     },
     {
-        "formula": "F_d = \\tfrac{1}{2} C_d \\rho A v^2",
-        "name": "空气阻力公式",
-        "proposer": "瑞利勋爵（Lord Rayleigh）",
-        "theory": "流体力学 · 1904",
-        "note_link": []
+        "f": "F_d = \\tfrac{1}{2} C_d \\rho A v^2",
+        "n": "空气阻力公式",
+        "p": "瑞利勋爵（Lord Rayleigh）",
+        "t": "流体力学 · 1904",
+        "nl": []
     },
     {
-        "formula": "P = \\frac{W}{t}",
-        "name": "功率定义",
-        "proposer": "詹姆斯·瓦特（James Watt）",
-        "theory": "经典力学 · 1782",
-        "note_link": []
+        "f": "P = \\frac{W}{t}",
+        "n": "功率定义",
+        "p": "詹姆斯·瓦特（James Watt）",
+        "t": "经典力学 · 1782",
+        "nl": []
     },
     {
-        "formula": "\\lambda_{max} T = b",
-        "name": "维恩位移定律",
-        "proposer": "威廉·维恩（Wilhelm Wien）",
-        "theory": "热辐射 · 1893",
-        "note_link": []
+        "f": "\\lambda_{max} T = b",
+        "n": "维恩位移定律",
+        "p": "威廉·维恩（Wilhelm Wien）",
+        "t": "热辐射 · 1893",
+        "nl": []
     },
     {
-        "formula": "j = \\sigma T^4",
-        "name": "斯特藩-玻尔兹曼定律",
-        "proposer": "斯特藩（Stefan）/ 玻尔兹曼（Boltzmann）",
-        "theory": "热辐射 · 1879/1884",
-        "note_link": []
+        "f": "j = \\sigma T^4",
+        "n": "斯特藩-玻尔兹曼定律",
+        "p": "斯特藩（Stefan）/ 玻尔兹曼（Boltzmann）",
+        "t": "热辐射 · 1879/1884",
+        "nl": []
     },
     {
-        "formula": "\\frac{T^2}{a^3} = \\frac{4\\pi^2}{GM}",
-        "name": "开普勒第三定律",
-        "proposer": "约翰内斯·开普勒（Johannes Kepler）",
-        "theory": "天体力学 · 1619",
-        "note_link": []
+        "f": "\\frac{T^2}{a^3} = \\frac{4\\pi^2}{GM}",
+        "n": "开普勒第三定律",
+        "p": "约翰内斯·开普勒（Johannes Kepler）",
+        "t": "天体力学 · 1619",
+        "nl": []
     },
     {
-        "formula": "v_{esc} = \\sqrt{\\frac{2GM}{R}}",
-        "name": "逃逸速度（第二宇宙速度）",
-        "proposer": "艾萨克·牛顿（Isaac Newton）",
-        "theory": "经典力学 · 1687",
-        "note_link": []
+        "f": "v_{esc} = \\sqrt{\\frac{2GM}{R}}",
+        "n": "逃逸速度（第二宇宙速度）",
+        "p": "艾萨克·牛顿（Isaac Newton）",
+        "t": "经典力学 · 1687",
+        "nl": []
     },
     {
-        "formula": "U = -\\frac{GMm}{r}",
-        "name": "引力势能",
-        "proposer": "艾萨克·牛顿（Isaac Newton）",
-        "theory": "经典力学 · 1687",
-        "note_link": []
+        "f": "U = -\\frac{GMm}{r}",
+        "n": "引力势能",
+        "p": "艾萨克·牛顿（Isaac Newton）",
+        "t": "经典力学 · 1687",
+        "nl": []
     },
     {
-        "formula": "V = \\frac{kq}{r}",
-        "name": "点电荷电势",
-        "proposer": "夏尔·库仑（Charles Coulomb）",
-        "theory": "静电学 · 1785",
-        "note_link": []
+        "f": "V = \\frac{kq}{r}",
+        "n": "点电荷电势",
+        "p": "夏尔·库仑（Charles Coulomb）",
+        "t": "静电学 · 1785",
+        "nl": []
     },
     {
-        "formula": "E = \\tfrac{1}{2}CU^2",
-        "name": "电容器储能",
-        "proposer": "迈克尔·法拉第（Michael Faraday）",
-        "theory": "电磁学 · 1837",
-        "note_link": []
+        "f": "E = \\tfrac{1}{2}CU^2",
+        "n": "电容器储能",
+        "p": "迈克尔·法拉第（Michael Faraday）",
+        "t": "电磁学 · 1837",
+        "nl": []
     },
     {
-        "formula": "\\tau = RC",
-        "name": "RC 电路时间常数",
-        "proposer": "奥利弗·亥维赛（Oliver Heaviside）",
-        "theory": "电路 · 1887",
-        "note_link": []
+        "f": "\\tau = RC",
+        "n": "RC 电路时间常数",
+        "p": "奥利弗·亥维赛（Oliver Heaviside）",
+        "t": "电路 · 1887",
+        "nl": []
     },
     {
-        "formula": "E = \\tfrac{1}{2}LI^2",
-        "name": "电感储能",
-        "proposer": "约瑟夫·亨利（Joseph Henry）",
-        "theory": "电磁学 · 1832",
-        "note_link": []
+        "f": "E = \\tfrac{1}{2}LI^2",
+        "n": "电感储能",
+        "p": "约瑟夫·亨利（Joseph Henry）",
+        "t": "电磁学 · 1832",
+        "nl": []
     },
     {
-        "formula": "\\nabla\\times\\vec{B} = \\mu_0\\vec{J} + \\mu_0\\varepsilon_0\\frac{\\partial\\vec{E}}{\\partial t}",
-        "name": "安培-麦克斯韦定律",
-        "proposer": "詹姆斯·克拉克·麦克斯韦（James Maxwell）",
-        "theory": "电磁学 · 1861",
-        "note_link": []
+        "f": "\\nabla\\times\\vec{B} = \\mu_0\\vec{J} + \\mu_0\\varepsilon_0\\frac{\\partial\\vec{E}}{\\partial t}",
+        "n": "安培-麦克斯韦定律",
+        "p": "詹姆斯·克拉克·麦克斯韦（James Maxwell）",
+        "t": "电磁学 · 1861",
+        "nl": []
     },
     {
-        "formula": "c = \\frac{1}{\\sqrt{\\mu_0\\varepsilon_0}}",
-        "name": "真空中电磁波速",
-        "proposer": "詹姆斯·克拉克·麦克斯韦（James Maxwell）",
-        "theory": "电磁学 · 1865",
-        "note_link": []
+        "f": "c = \\frac{1}{\\sqrt{\\mu_0\\varepsilon_0}}",
+        "n": "真空中电磁波速",
+        "p": "詹姆斯·克拉克·麦克斯韦（James Maxwell）",
+        "t": "电磁学 · 1865",
+        "nl": []
     },
     {
-        "formula": "\\vec{S} = \\vec{E}\\times\\vec{H}",
-        "name": "坡印廷矢量",
-        "proposer": "约翰·坡印廷（John Poynting）",
-        "theory": "电磁学 · 1884",
-        "note_link": []
+        "f": "\\vec{S} = \\vec{E}\\times\\vec{H}",
+        "n": "坡印廷矢量",
+        "p": "约翰·坡印廷（John Poynting）",
+        "t": "电磁学 · 1884",
+        "nl": []
     },
     {
-        "formula": "\\Delta\\lambda = \\frac{h}{m_0 c}(1 - \\cos\\theta)",
-        "name": "康普顿散射公式",
-        "proposer": "阿瑟·康普顿（Arthur Compton）",
-        "theory": "量子物理 · 1923",
-        "note_link": []
+        "f": "\\Delta\\lambda = \\frac{h}{m_0 c}(1 - \\cos\\theta)",
+        "n": "康普顿散射公式",
+        "p": "阿瑟·康普顿（Arthur Compton）",
+        "t": "量子物理 · 1923",
+        "nl": []
     },
     {
-        "formula": "\\frac{1}{\\lambda} = R\\left(\\frac{1}{n_1^2} - \\frac{1}{n_2^2}\\right)",
-        "name": "里德伯公式",
-        "proposer": "约翰内斯·里德伯（Johannes Rydberg）",
-        "theory": "原子物理 · 1888",
-        "note_link": []
+        "f": "\\frac{1}{\\lambda} = R\\left(\\frac{1}{n_1^2} - \\frac{1}{n_2^2}\\right)",
+        "n": "里德伯公式",
+        "p": "约翰内斯·里德伯（Johannes Rydberg）",
+        "t": "原子物理 · 1888",
+        "nl": []
     },
     {
-        "formula": "\\int_{-\\infty}^{\\infty}|\\psi|^2\\,dx = 1",
-        "name": "波函数归一化条件",
-        "proposer": "马克斯·玻恩（Max Born）",
-        "theory": "量子力学 · 1926",
-        "note_link": []
+        "f": "\\int_{-\\infty}^{\\infty}|\\psi|^2\\,dx = 1",
+        "n": "波函数归一化条件",
+        "p": "马克斯·玻恩（Max Born）",
+        "t": "量子力学 · 1926",
+        "nl": []
     },
     {
-        "formula": "r_s = \\frac{2GM}{c^2}",
-        "name": "史瓦西半径",
-        "proposer": "卡尔·史瓦西（Karl Schwarzschild）",
-        "theory": "广义相对论 · 1916",
-        "note_link": []
+        "f": "r_s = \\frac{2GM}{c^2}",
+        "n": "史瓦西半径",
+        "p": "卡尔·史瓦西（Karl Schwarzschild）",
+        "t": "广义相对论 · 1916",
+        "nl": []
     },
     {
-        "formula": "x' = \\gamma(x - vt)",
-        "name": "洛伦兹变换",
-        "proposer": "亨德里克·洛伦兹（Hendrik Lorentz）",
-        "theory": "狭义相对论 · 1904",
-        "note_link": []
+        "f": "x' = \\gamma(x - vt)",
+        "n": "洛伦兹变换",
+        "p": "亨德里克·洛伦兹（Hendrik Lorentz）",
+        "t": "狭义相对论 · 1904",
+        "nl": []
     },
     {
-        "formula": "v = H_0 d",
-        "name": "哈勃定律",
-        "proposer": "埃德温·哈勃（Edwin Hubble）",
-        "theory": "宇宙学 · 1929",
-        "note_link": []
+        "f": "v = H_0 d",
+        "n": "哈勃定律",
+        "p": "埃德温·哈勃（Edwin Hubble）",
+        "t": "宇宙学 · 1929",
+        "nl": []
     },
     {
-        "formula": "F = 6\\pi\\mu r v",
-        "name": "斯托克斯阻力定律",
-        "proposer": "乔治·斯托克斯（George Stokes）",
-        "theory": "流体力学 · 1851",
-        "note_link": []
+        "f": "F = 6\\pi\\mu r v",
+        "n": "斯托克斯阻力定律",
+        "p": "乔治·斯托克斯（George Stokes）",
+        "t": "流体力学 · 1851",
+        "nl": []
     },
     {
-        "formula": "\\left(P + \\frac{a}{V_m^2}\\right)(V_m - b) = RT",
-        "name": "范德瓦尔斯方程",
-        "proposer": "约翰内斯·范德瓦尔斯（J. van der Waals）",
-        "theory": "热力学 · 1873",
-        "note_link": []
+        "f": "\\left(P + \\frac{a}{V_m^2}\\right)(V_m - b) = RT",
+        "n": "范德瓦尔斯方程",
+        "p": "约翰内斯·范德瓦尔斯（J. van der Waals）",
+        "t": "热力学 · 1873",
+        "nl": []
     },
     {
-        "formula": "G = H - TS",
-        "name": "吉布斯自由能",
-        "proposer": "约西亚·吉布斯（Josiah Gibbs）",
-        "theory": "热力学 · 1876",
-        "note_link": []
+        "f": "G = H - TS",
+        "n": "吉布斯自由能",
+        "p": "约西亚·吉布斯（Josiah Gibbs）",
+        "t": "热力学 · 1876",
+        "nl": []
     },
     {
-        "formula": "f(x) = \\frac{1}{\\sigma\\sqrt{2\\pi}} e^{-\\frac{(x-\\mu)^2}{2\\sigma^2}}",
-        "name": "正态分布密度函数",
-        "proposer": "卡尔·弗里德里希·高斯（C. F. Gauss）",
-        "theory": "统计学 · 1809",
-        "note_link": []
+        "f": "f(x) = \\frac{1}{\\sigma\\sqrt{2\\pi}} e^{-\\frac{(x-\\mu)^2}{2\\sigma^2}}",
+        "n": "正态分布密度函数",
+        "p": "卡尔·弗里德里希·高斯（C. F. Gauss）",
+        "t": "统计学 · 1809",
+        "nl": []
     }
 ]

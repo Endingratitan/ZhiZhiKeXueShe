@@ -18,7 +18,12 @@
       公式流"仍然可见"而不是追求完整，因此【不需要】与
       formulas.json 保持同数量——100 与 25 是设计上的有意差异。
 
-   【持久化缓存（三层 localStorage，跨会话生效）】
+   【持久化缓存（跨会话生效）】
+   存储介质分工：
+   - 公式 JSON（official / custom 两项，体积大）→ IndexedDB
+     （由同目录 formular-store.js 提供），不可用时自动退回 localStorage；
+   - 显示设置（settings，体积很小）→ localStorage（同步、简单）。
+
    - zzkxs.formulas.official  { v, ts, hash, data }
        官方 formulas.json 的缓存副本。策略为"缓存优先 + 后台刷新"
        （stale-while-revalidate）：页面先用缓存立即渲染，随后
@@ -36,7 +41,10 @@
                     random 时为基准 ±40% 随机
          size     : 字号（px），KaTeX 行内渲染跟随 CSS font-size
          density  : 展示条数，0 = 隐藏公式流
-   - 隐私模式下 localStorage 读写可能抛异常，全部 try/catch 静默降级。
+   - 升级兼容：旧版存在 localStorage 的 official / custom 数据会在首次
+     读取时自动迁移进 IndexedDB 并删除旧键，访问者无感知、编辑不丢失。
+   - 异常兜底：存储层内部 try/catch 并退回 localStorage；读取失败给
+     null、写入失败返回 false，不抛异常、不阻塞首屏。
 
    【编辑器对接（formular-editor.js）】
    - 本文件对外暴露 window.ZZKXS.formular API，编辑器通过它：
@@ -48,7 +56,23 @@
        katexReady()        KaTeX 就绪 Promise（懒加载入口）
        renderLatex(el, tex, displayMode)  同步渲染（无 KaTeX 降级源码）
        openEditor()        由 formular-editor.js 注册，供设置面板调用
-   - 所有 localStorage 读写都集中在本文件，编辑器不直接碰存储。
+   - 所有存储读写都集中在本文件（经 formular-store 适配层），编辑器不直接碰存储。
+
+   【数据格式（文件 / 导出用简写键）】
+   - 为减小体积，JSON 文件与导出文件使用首字母简写键：
+       f  = formula    公式（LaTeX 源码）
+       n  = name       名称
+       p  = proposer   提出者
+       t  = theory     领域 / 年份
+       nl = note_link  笔记链接数组，元素为 { n: 链接名称, u: 链接地址 }
+   - 代码内部统一使用长键（formula / name / proposer / theory / note_link），
+     只在两个边界各转换一次：读（文件 / 缓存 / 导入）→ normalizeEntries()，
+     写（导出 / 写缓存）→ shortenEntries()；
+   - 转换函数同时兼容旧的长键数据，因此老缓存与旧导出文件仍能正常读取；
+   - 示例：
+       { "f": "F = ma", "n": "牛顿第二定律",
+         "p": "艾萨克·牛顿（Isaac Newton）", "t": "经典力学 · 1687",
+         "nl": [ { "n": "维基百科", "u": "https://…" } ] }
 
    【公式格式：LaTeX】
    - 两处数据中的 "formula" 字段均为 LaTeX 源码字符串，
@@ -113,7 +137,12 @@
     var LIMIT_DENSITY = [0, 500];   // 展示条数（0 = 隐藏）
 
     /* ============================================================
-       二、localStorage 工具（全部 try/catch，隐私模式静默降级）
+       二、存储层：IndexedDB 优先，localStorage 兜底
+       - 公式 JSON（official / custom）走 formular-store（IndexedDB，
+         结构化克隆、异步不阻塞首屏）；
+       - 显示设置很小，仍用 localStorage 同步读写；
+       - formular-store.js 未加载时，下面的适配层自动退回 localStorage，
+         行为与拆分前完全一致。
        ============================================================ */
 
     function readJSON(key) {
@@ -124,11 +153,31 @@
     }
 
     function writeJSON(key, value) {
-        try { localStorage.setItem(key, JSON.stringify(value)); } catch (e) { /* 配额/隐私模式：忽略 */ }
+        try { localStorage.setItem(key, JSON.stringify(value)); return true; }
+        catch (e) { return false; }   // 配额不足 / 隐私模式
     }
 
     function removeJSON(key) {
-        try { localStorage.removeItem(key); } catch (e) { /* 忽略 */ }
+        try { localStorage.removeItem(key); return true; }
+        catch (e) { return false; }
+    }
+
+    /* ---------- 存储适配层（优先 IndexedDB，缺失或失败时退回 localStorage） ---------- */
+    var kv = (window.ZZKXS && window.ZZKXS.formular && window.ZZKXS.formular.store) || null;
+
+    function storeGet(key) {
+        if (!kv) { return Promise.resolve(readJSON(key)); }
+        return kv.get(key).catch(function () { return readJSON(key); });
+    }
+
+    function storeSet(key, value) {
+        if (!kv) { return Promise.resolve(writeJSON(key, value)); }
+        return kv.set(key, value).catch(function () { return writeJSON(key, value); });
+    }
+
+    function storeRemove(key) {
+        if (!kv) { return Promise.resolve(removeJSON(key)); }
+        return kv.remove(key).catch(function () { return removeJSON(key); });
     }
 
     /* FNV-1a 字符串哈希（36 进制短签名），用于官方数据变更比对 */
@@ -267,8 +316,9 @@
 
     /* ---------- 兜底数据（25 条 · LaTeX）----------
        仅含各领域最经典公式，fetch 失败且无缓存时启用。
-       与 formulas.json（100 条）刻意保持差异，见文件头说明。
-       每条字段：formula / name / proposer / theory / note_link */
+       注意：本数组使用**内存长键**（formula/name/proposer/theory/note_link），
+       与文件里的简写键不同——它不经过文件读写，直接进入渲染流程；
+       对外导出时由 publisher 统一转成简写键。 */
     var FALLBACK_DATA = [
     {
         "formula": "F = ma",
@@ -446,6 +496,79 @@
         "note_link": []
     }
     ];
+
+    /* ============================================================
+       五·二、数据格式转换（简写键 ↔ 内存长键）
+       ------------------------------------------------------------
+       - 文件 / 缓存 / 导出使用简写键（f/n/p/t/nl，链接 n/u）以减小体积；
+       - 代码内部统一使用长键，便于阅读与维护；
+       - normalizeEntries 兼容旧的长键数据 → 老缓存、旧导出文件照样能读；
+       - shortenEntries 用于写入缓存与对外导出。
+       ============================================================ */
+    function pickField(src, short, long) {
+        return src[short] !== undefined ? src[short] : src[long];
+    }
+
+    function normalizeLink(l) {
+        if (!l || typeof l !== 'object') { return null; }
+        var url = pickField(l, 'u', 'url');
+        if (typeof url !== 'string') { return null; }
+        var name = pickField(l, 'n', 'name');
+        return { name: (name === undefined || name === null) ? '' : String(name), url: url };
+    }
+
+    /* 单条：简写键或长键 → 内存长键对象 */
+    function normalizeEntry(e) {
+        if (!e || typeof e !== 'object') { return null; }
+        var rawLinks = pickField(e, 'nl', 'note_link');
+        var links = [];
+        if (Object.prototype.toString.call(rawLinks) === '[object Array]') {
+            rawLinks.forEach(function (l) { var n = normalizeLink(l); if (n) { links.push(n); } });
+        }
+        return {
+            formula: String(pickField(e, 'f', 'formula') || ''),
+            name: String(pickField(e, 'n', 'name') || ''),
+            proposer: String(pickField(e, 'p', 'proposer') || ''),
+            theory: String(pickField(e, 't', 'theory') || ''),
+            note_link: links
+        };
+    }
+
+    /* 数组：顺带过滤掉完全空白的条目 */
+    function normalizeEntries(arr) {
+        if (Object.prototype.toString.call(arr) !== '[object Array]') { return []; }
+        var out = [];
+        arr.forEach(function (e) {
+            var n = normalizeEntry(e);
+            if (n && (n.formula || n.name)) { out.push(n); }
+        });
+        return out;
+    }
+
+    /* 单条：内存长键 → 简写键（写缓存 / 导出用） */
+    function shortenEntry(e) {
+        var src = (e && typeof e === 'object') ? e : {};
+        var links = [];
+        var raw = src.note_link;
+        if (Object.prototype.toString.call(raw) === '[object Array]') {
+            raw.forEach(function (l) {
+                if (!l || typeof l.url !== 'string' || !l.url) { return; }
+                links.push({ n: String(l.name || ''), u: String(l.url) });
+            });
+        }
+        return {
+            f: String(src.formula || ''),
+            n: String(src.name || ''),
+            p: String(src.proposer || ''),
+            t: String(src.theory || ''),
+            nl: links
+        };
+    }
+
+    function shortenEntries(arr) {
+        if (Object.prototype.toString.call(arr) !== '[object Array]') { return []; }
+        return arr.map(shortenEntry);
+    }
 
     /* ============================================================
        六、状态与宽屏检测
@@ -783,73 +906,84 @@
             })
             .then(function (data) {
                 if (!Array.isArray(data) || !data.length) { throw new Error('empty data'); }
-                return data;
+                return normalizeEntries(data);   // 文件里的简写键 → 内存长键
             });
     }
 
+    /* 写入官方缓存（IndexedDB；失败自动退回 localStorage），返回写入结果 Promise
+       哈希基于内存长键计算——与旧格式的哈希保持可比，避免无谓的"官方已更新"误判；
+       落库时转成简写键以减小体积。 */
     function storeOfficial(data) {
         var h = hash(JSON.stringify(data));
         officialHash = h;
-        writeJSON(OFFICIAL_KEY, { v: 1, ts: Date.now(), hash: h, data: data });
+        return storeSet(OFFICIAL_KEY, { v: 1, ts: Date.now(), hash: h, data: shortenEntries(data) });
     }
 
     /* 恢复官方数据（编辑器「恢复官方数据」调用）：
        清除用户覆盖 → 优先用缓存立即渲染 → 后台拉取最新官方并二次渲染 */
     function renderOfficial() {
-        removeJSON(CUSTOM_KEY);
         officialChanged = false;
-        var cached = readJSON(OFFICIAL_KEY);
-        if (cached && Array.isArray(cached.data) && cached.data.length) {
-            officialHash = cached.hash || null;
-            currentData = cached.data;
-            requestRender();
-        }
-        fetchOfficial().then(function (d) {
-            storeOfficial(d);
-            currentData = d;
-            requestRender();
-        }).catch(function () {
-            if (!currentData) { currentData = FALLBACK_DATA; requestRender(); }
-        });
-    }
-
-    /* 启动：数据来源优先级 custom > official 缓存 > fetch > fallback */
-    function boot() {
-        var custom = readJSON(CUSTOM_KEY);
-        var cached = readJSON(OFFICIAL_KEY);
-
-        if (custom && Array.isArray(custom.data) && custom.data.length) {
-            /* 用户有本地覆盖：永远优先，官方数据只在后台刷新用于比对 */
-            currentData = custom.data;
-            requestRender();
-            fetchOfficial().then(function (d) {
-                storeOfficial(d);
-                if (custom.baseHash !== officialHash) { officialChanged = true; }
-            }).catch(function () { /* 后台刷新失败：保持用户数据 */ });
-        } else if (cached && Array.isArray(cached.data) && cached.data.length) {
-            /* 缓存优先（stale-while-revalidate）：立即渲染缓存，后台比对官方 */
-            officialHash = cached.hash || null;
-            currentData = cached.data;
-            requestRender();
-            fetchOfficial().then(function (d) {
-                var h = hash(JSON.stringify(d));
-                if (h !== officialHash) {
-                    storeOfficial(d);
-                    currentData = d;
-                    requestRender(); // 官方更新 → 重渲染
-                }
-            }).catch(function () { /* 断网：缓存继续生效 */ });
-        } else {
-            /* 无任何缓存：等 fetch；失败才用 25 条兜底 */
+        storeRemove(CUSTOM_KEY);   // 存储是异步的：清覆盖与读缓存并行推进，不阻塞渲染
+        storeGet(OFFICIAL_KEY).then(function (cached) {
+            var cachedData = cached ? normalizeEntries(cached.data) : [];   // 兼容旧长键缓存
+            if (cachedData.length) {
+                officialHash = cached.hash || null;
+                currentData = cachedData;
+                requestRender();
+            }
             fetchOfficial().then(function (d) {
                 storeOfficial(d);
                 currentData = d;
                 requestRender();
             }).catch(function () {
-                currentData = FALLBACK_DATA;
-                requestRender();
+                if (!currentData) { currentData = FALLBACK_DATA; requestRender(); }
             });
-        }
+        });
+    }
+
+    /* 启动：数据来源优先级 custom > official 缓存 > fetch > fallback
+       存储是异步的（IndexedDB）→ 先并行取回两级缓存，再决定渲染来源 */
+    function boot() {
+        Promise.all([storeGet(CUSTOM_KEY), storeGet(OFFICIAL_KEY)]).then(function (r) {
+            var custom = r[0];
+            var cached = r[1];
+            /* 缓存里可能是新的简写键，也可能是旧的长键 → 统一归一化 */
+            var customData = custom ? normalizeEntries(custom.data) : [];
+            var cachedData = cached ? normalizeEntries(cached.data) : [];
+
+            if (customData.length) {
+                /* 用户有本地覆盖：永远优先，官方数据只在后台刷新用于比对 */
+                currentData = customData;
+                requestRender();
+                fetchOfficial().then(function (d) {
+                    storeOfficial(d);
+                    if (custom.baseHash !== officialHash) { officialChanged = true; }
+                }).catch(function () { /* 后台刷新失败：保持用户数据 */ });
+            } else if (cachedData.length) {
+                /* 缓存优先（stale-while-revalidate）：立即渲染缓存，后台比对官方 */
+                officialHash = cached.hash || null;
+                currentData = cachedData;
+                requestRender();
+                fetchOfficial().then(function (d) {
+                    var h = hash(JSON.stringify(d));
+                    if (h !== officialHash) {
+                        storeOfficial(d);
+                        currentData = d;
+                        requestRender(); // 官方更新 → 重渲染
+                    }
+                }).catch(function () { /* 断网：缓存继续生效 */ });
+            } else {
+                /* 无任何缓存：等 fetch；失败才用 25 条兜底 */
+                fetchOfficial().then(function (d) {
+                    storeOfficial(d);
+                    currentData = d;
+                    requestRender();
+                }).catch(function () {
+                    currentData = FALLBACK_DATA;
+                    requestRender();
+                });
+            }
+        });
     }
 
     /* ============================================================
@@ -861,10 +995,12 @@
 
         /* 提交用户编辑：写 custom 缓存（含 baseHash）+ 立即重渲染 */
         setCustomData: function (arr) {
-            if (!Array.isArray(arr)) { return; }
+            if (!Array.isArray(arr)) { return Promise.resolve(false); }
             currentData = arr;
-            writeJSON(CUSTOM_KEY, { v: 1, baseHash: officialHash, ts: Date.now(), data: arr });
-            requestRender();
+            requestRender();   // 先渲染，写入异步进行
+            /* 返回写入结果：编辑器据此提示"保存失败"，避免无声丢失；
+               写缓存时转简写键（编辑器传入的是内存长键） */
+            return storeSet(CUSTOM_KEY, { v: 1, baseHash: officialHash, ts: Date.now(), data: shortenEntries(arr) });
         },
 
         /* 清除用户覆盖，回到官方数据（缓存优先 + 后台刷新） */
@@ -907,6 +1043,17 @@
     };
 
     window.ZZKXS = window.ZZKXS || {};
+    /* 命名空间合并：formular-store.js 可能已在本命名空间上挂了子模块
+       （如 .store），先把它们并入 api 再整体赋回，避免被覆盖丢失。
+       注意：这里不能直接 `window.ZZKXS.formular = api`，否则会丢掉子模块。 */
+    var existedNs = window.ZZKXS.formular;
+    if (existedNs && typeof existedNs === 'object') {
+        for (var nsKey in existedNs) {
+            if (Object.prototype.hasOwnProperty.call(existedNs, nsKey) && !(nsKey in api)) {
+                api[nsKey] = existedNs[nsKey];
+            }
+        }
+    }
     window.ZZKXS.formular = api;
 
     /* ---------- 启动 ---------- */

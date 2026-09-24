@@ -6,13 +6,18 @@
    - 支持「部分导出」（编辑器中勾选的条目）与「全部导出」，
      导出范围由调用方（formular-editor.js）决定，本模块只负责生成与投递。
 
-   【导出格式】
-   - 与官方 assets/data/formulas.json 完全一致的裸数组，
-     4 空格缩进，字段顺序固定为：
-        formula / name / proposer / theory / note_link
+   【导出格式（简写键）】
+   - 与官方 assets/data/formulas.json 完全一致的裸数组，4 空格缩进，
+     字段顺序固定为简写键：
+         f  = formula    公式（LaTeX 源码）
+         n  = name       名称
+         p  = proposer   提出者
+         t  = theory     领域 / 年份
+         nl = note_link  链接数组，元素为 { n: 名称, u: 地址 }
    - 因此导出的文件既能直接替换官方数据文件，也能被
      formular-loader.js 原样读回（往返无损）；
-   - note_link 只保留 http(s) 链接；无协议的自动补 https://（与编辑器录入、
+   - 入参兼容两种形状：内存长键（编辑器传出）与简写键，输出一律为简写键；
+   - nl 只保留 http(s) 链接；无协议的自动补 https://（与编辑器录入、
      导入模块同一规则），危险协议（javascript: / file: 等）直接丢弃，
      保证导出文件既干净又不丢数据。
 
@@ -30,14 +35,23 @@
 (function () {
     'use strict';
 
-    /* ---------- 规范化单条：只输出约定字段 ---------- */
+    /* ---------- 规范化单条：输出「简写键」格式 ----------
+       入参可能是内存长键（编辑器传出的对象）或简写键（外部文件），两者都接受；
+       输出统一为简写键：f / n / p / t / nl，链接为 { n, u }。 */
+    function pickField(src, short, long) {
+        return src[short] !== undefined ? src[short] : src[long];
+    }
+
     function cleanEntry(e) {
         var src = (e && typeof e === 'object') ? e : {};
-        var links = Array.isArray(src.note_link) ? src.note_link : [];
+        var rawLinks = pickField(src, 'nl', 'note_link');
+        var links = Array.isArray(rawLinks) ? rawLinks : [];
         var outLinks = [];
         links.forEach(function (l) {
-            if (!l || typeof l.url !== 'string') { return; }
-            var url = l.url.trim();
+            if (!l || typeof l !== 'object') { return; }
+            var rawUrl = pickField(l, 'u', 'url');
+            if (typeof rawUrl !== 'string') { return; }
+            var url = rawUrl.trim();
             if (!url) { return; }
             if (/^[a-z][a-z0-9+.-]*:/i.test(url)) {
                 /* 已带协议：只保留 http(s)，其余（javascript:、file: 等）一律丢弃 */
@@ -47,14 +61,14 @@
                    避免导出时静默丢链接 */
                 url = 'https://' + url;
             }
-            outLinks.push({ name: String(l.name || '').trim(), url: url });
+            outLinks.push({ n: String(pickField(l, 'n', 'name') || '').trim(), u: url });
         });
         return {
-            formula: String(src.formula || ''),
-            name: String(src.name || ''),
-            proposer: String(src.proposer || ''),
-            theory: String(src.theory || ''),
-            note_link: outLinks
+            f: String(pickField(src, 'f', 'formula') || ''),
+            n: String(pickField(src, 'n', 'name') || ''),
+            p: String(pickField(src, 'p', 'proposer') || ''),
+            t: String(pickField(src, 't', 'theory') || ''),
+            nl: outLinks
         };
     }
 

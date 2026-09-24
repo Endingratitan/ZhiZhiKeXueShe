@@ -5,16 +5,20 @@
    - 读取用户提供的 JSON（文件选择 / 拖拽 / 文本），校验并归一化为公式数组；
    - 提供「追加」与「替换」两种合并方式，追加时自动跳过重复条目。
 
-   【可识别的输入结构（两种，兼顾兼容性）】
-   1) 裸数组（与官方 assets/data/formulas.json 一致）：
+   【可识别的输入结构（三种，兼顾兼容性）】
+   1) 裸数组 · 简写键（当前官方 assets/data/formulas.json 与本站导出格式）：
+        [{ "f": "F = ma", "n": "牛顿第二定律", "p": "…", "t": "…",
+           "nl": [{ "n": "维基百科", "u": "https://…" }] }]
+   2) 裸数组 · 旧长键（升级前的导出文件，仍可读）：
         [{ "formula": "...", "name": "...", "proposer": "...",
            "theory": "...", "note_link": [{ "name": "...", "url": "..." }] }]
-   2) 包装对象：{ "formulas": [...] } 或 { "data": [...] }
+   3) 包装对象：{ "formulas": [...] } 或 { "data": [...] }
+   - 无论输入哪种，本模块一律归一化为**内存长键**结构后交给编辑器。
 
    【校验规则】
-   - 条目必须是对象，且 formula / name 至少有一个非空，否则计入「忽略」；
-   - 缺失字段自动补空字符串；note_link 兼容缺失或非数组；
-   - note_link 中的链接只保留 http(s)，无协议的自动补 https://。
+   - 条目必须是对象，且 f/formula 与 n/name 至少有一个非空，否则计入「忽略」；
+   - 缺失字段自动补空字符串；note_link / nl 兼容缺失或非数组；
+   - 链接只保留 http(s)，无协议的自动补 https://。
 
    【对外接口】window.ZZKXS.formular.loader
    - parse(text)            → { ok, data, count, skipped, error }
@@ -31,22 +35,31 @@
     'use strict';
 
     /* ---------- 归一化单条（与编辑器内部结构保持一致） ---------- */
+    function pickField(src, short, long) {
+        return src[short] !== undefined ? src[short] : src[long];
+    }
+
+    /* 归一化为「内存长键」结构，同时兼容简写键（f/n/p/t/nl、链接 n/u）
+       与旧的长键（formula/name/proposer/theory/note_link） */
     function normalizeEntry(e) {
         var src = (e && typeof e === 'object') ? e : {};
-        var links = Array.isArray(src.note_link) ? src.note_link : [];
+        var rawLinks = pickField(src, 'nl', 'note_link');
+        var links = Array.isArray(rawLinks) ? rawLinks : [];
         var outLinks = [];
         links.forEach(function (l) {
-            if (!l || typeof l.url !== 'string') { return; }
-            var url = l.url.trim();
+            if (!l || typeof l !== 'object') { return; }
+            var rawUrl = pickField(l, 'u', 'url');
+            if (typeof rawUrl !== 'string') { return; }
+            var url = rawUrl.trim();
             if (!url) { return; }
             if (!/^https?:\/\//i.test(url)) { url = 'https://' + url; }
-            outLinks.push({ name: String(l.name || '').trim(), url: url });
+            outLinks.push({ name: String(pickField(l, 'n', 'name') || '').trim(), url: url });
         });
         return {
-            formula: String(src.formula || ''),
-            name: String(src.name || ''),
-            proposer: String(src.proposer || ''),
-            theory: String(src.theory || ''),
+            formula: String(pickField(src, 'f', 'formula') || ''),
+            name: String(pickField(src, 'n', 'name') || ''),
+            proposer: String(pickField(src, 'p', 'proposer') || ''),
+            theory: String(pickField(src, 't', 'theory') || ''),
             note_link: outLinks
         };
     }
