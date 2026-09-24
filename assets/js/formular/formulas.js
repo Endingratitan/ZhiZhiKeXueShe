@@ -583,6 +583,7 @@
     var card = null;             // 介绍卡
     var cardFormulaBox = null, cardFormula = null, cardName = null, cardProposer = null, cardTheory = null;
     var cardRowProposer = null, cardRowTheory = null, cardLinks = null, cardLinksWrap = null;
+    var cardHint = null, cardHintArrow = null, cardHintText = null;   // 超宽/超高时的滑动提示
     var activeItem = null;       // 当前"被捕获"的漂浮项
 
     var wideMedia = window.matchMedia ? window.matchMedia('(min-width: 1080px)') : null;
@@ -595,6 +596,28 @@
        七、渲染（壳 + 漂浮项）
        ============================================================ */
 
+    /* ---------- 容器尺寸 → CSS 变量 ----------
+       上浮距离取「容器高度的 1.22 倍」而不是 vh：
+       容器是定位基准，改窗口/改缩放时只更新这一个变量，
+       漂浮项无需重建，位置也不会失准。 */
+    var metricsRaf = 0;
+
+    function syncFieldMetrics() {
+        if (!field) { return; }
+        var h = field.clientHeight;
+        /* h=0 说明此刻还没拿到布局（样式表未就绪等）：
+           此时不写变量，留给 CSS 里的 -122vh 兜底，并等下一次 resize 修正 */
+        if (h > 0) { field.style.setProperty('--drift', (-1.22 * h) + 'px'); }
+    }
+
+    function onFieldResize() {
+        if (metricsRaf) { return; }
+        metricsRaf = window.requestAnimationFrame(function () {
+            metricsRaf = 0;
+            syncFieldMetrics();
+        });
+    }
+
     /* ---------- 壳：漂浮容器 + 介绍卡（整个生命周期只建一次） ---------- */
     function ensureShell() {
         if (field) { return; }
@@ -603,6 +626,11 @@
         field.className = 'formula-field';
         field.id = 'formulaField';
         document.body.appendChild(field);
+
+        /* 容器尺寸基准：建壳即算一次，之后监听窗口变化增量更新 */
+        syncFieldMetrics();
+        window.addEventListener('resize', onFieldResize);
+        window.addEventListener('orientationchange', onFieldResize);
 
         card = document.createElement('div');
         card.className = 'formula-card';
@@ -613,6 +641,11 @@
             '<button type="button" class="fc-close" aria-label="关闭">×</button>' +
             '<div class="fc-body">' +
                 '<div class="fc-formula-box"><p class="fc-formula"></p></div>' +  // 公式本体（KaTeX 行间渲染）
+                // 超宽/超高时的滑动提示：作为块级元素排在公式框「下方」，几何上不可能遮挡公式
+                '<p class="fc-scroll-hint" hidden><span class="fc-hint-pill">' +
+                    '<span class="fc-hint-arrow" aria-hidden="true">→</span>' +
+                    '<span class="fc-hint-text"></span>' +
+                '</span></p>' +
                 '<h3 class="fc-name"></h3>' +                                      // 公式名称
                 '<div class="fc-info">' +                                          // 提出者 / 领域（两行；fc-row-* 仅作脚本切换 hidden 的钩子，样式走 fc-info-row）
                     '<p class="fc-info-row fc-row-proposer"><span class="fc-info-label">提出者</span><span class="fc-proposer"></span></p>' +
@@ -627,6 +660,9 @@
 
         cardFormulaBox = card.querySelector('.fc-formula-box');
         cardFormula = card.querySelector('.fc-formula');
+        cardHint = card.querySelector('.fc-scroll-hint');
+        cardHintArrow = card.querySelector('.fc-hint-arrow');
+        cardHintText = card.querySelector('.fc-hint-text');
         cardName = card.querySelector('.fc-name');
         cardProposer = card.querySelector('.fc-proposer');
         cardTheory = card.querySelector('.fc-theory');
@@ -634,6 +670,35 @@
         cardRowTheory = card.querySelector('.fc-row-theory');
         cardLinks = card.querySelector('.fc-links');
         cardLinksWrap = card.querySelector('.fc-links-wrap');
+
+        /* ---------- 公式框：超宽/超高时可按住拖动查看（桌面端没有触摸滑动） ---------- */
+        var boxDragging = false, boxStartX = 0, boxStartY = 0, boxStartLeft = 0, boxStartTop = 0;
+        cardFormulaBox.addEventListener('pointerdown', function (e) {
+            /* 完全放得下就不拦截指针，交给默认行为（选中文字等） */
+            if (cardFormulaBox.scrollWidth <= cardFormulaBox.clientWidth + 1 &&
+                cardFormulaBox.scrollHeight <= cardFormulaBox.clientHeight + 1) { return; }
+            boxDragging = true;
+            boxStartX = e.clientX;
+            boxStartY = e.clientY;
+            boxStartLeft = cardFormulaBox.scrollLeft;
+            boxStartTop = cardFormulaBox.scrollTop;
+            cardFormulaBox.classList.add('dragging');
+            try { cardFormulaBox.setPointerCapture(e.pointerId); } catch (err) {}
+        });
+        cardFormulaBox.addEventListener('pointermove', function (e) {
+            if (!boxDragging) { return; }
+            cardFormulaBox.scrollLeft = boxStartLeft - (e.clientX - boxStartX);
+            cardFormulaBox.scrollTop = boxStartTop - (e.clientY - boxStartY);
+            e.preventDefault();
+        });
+        var endBoxDrag = function () {
+            boxDragging = false;
+            cardFormulaBox.classList.remove('dragging');
+        };
+        cardFormulaBox.addEventListener('pointerup', endBoxDrag);
+        cardFormulaBox.addEventListener('pointercancel', endBoxDrag);
+        /* 滚动位置变化 → 刷新提示方向与文案（滚到尽头自动隐藏） */
+        cardFormulaBox.addEventListener('scroll', updateScrollHint, { passive: true });
 
         /* ---------- 全局关闭：×按钮 / Esc / 点击卡片外部 ---------- */
         card.querySelector('.fc-close').addEventListener('click', closeCard);
@@ -654,15 +719,108 @@
     /* ---------- 关闭介绍卡并释放被捕获的公式 ---------- */
     function closeCard() {
         card.hidden = true;
+        /* 复位公式框：字号缩放、滚动位置、滑动提示 */
+        cardFormulaBox.style.setProperty('--fc-scale', '1');
+        cardFormulaBox.scrollLeft = 0;
+        cardFormulaBox.scrollTop = 0;
+        cardFormulaBox.classList.remove('can-scroll', 'dragging');
+        cardHint.hidden = true;
         if (activeItem) {
             activeItem.classList.remove('captured');
-            // 清空拖拽期间写入的内联样式，恢复 CSS 动画
-            activeItem.style.left = '';
-            activeItem.style.top = '';
-            activeItem.style.bottom = '';
-            activeItem.style.animation = '';
+            /* 只清掉拖拽叠加的相对位移，保留 left/bottom 等相对定位基准，
+               动画随即从暂停处继续 */
+            activeItem.style.translate = '';
             activeItem = null;
         }
+    }
+
+    /* ---------- 公式自适应：先等比缩字号，缩到下限再给滑动提示 ----------
+       横向（长公式）与纵向（矩阵、多行分式等"高"内容）一并考虑：
+       1) 字号由 --fc-scale 控制（CSS: font-size: calc(18px * var(--fc-scale))）；
+       2) 缩放系数取「宽度比」与「高度比」中更小的一个，逐次测量收敛，
+          下限 FC_MIN_SCALE 保证可读；
+       3) 缩到下限仍放不下 → 在公式框下方显示方向提示（块级流布局，不遮挡公式），
+          并可按住拖动查看（桌面端没有触摸滑动）。 */
+    var FC_MIN_SCALE = 0.6;
+    var SCROLL_TOL = 4;          // 判定"还有内容"的像素余量
+
+    function fitFormula() {
+        var box = cardFormulaBox;
+        var scale = 1;
+        box.style.setProperty('--fc-scale', '1');
+        box.scrollLeft = 0;
+        box.scrollTop = 0;
+
+        /* 1) 先按基准字号判断是否要把卡片加宽一档（380 → 480px）。
+              放在这里而不是 openCard 里，是为了让"字体就绪后重适配"也能重新判断 */
+        card.classList.toggle('fc-wide', box.scrollWidth > box.clientWidth + 4);
+
+        /* 2) 加宽后仍放不下 → 等比缩小字号；宽、高两个方向取更小的系数。
+              注意：只在"确实溢出"时才缩（+0.5px 容差），否则 (have-2)/need 恒小于 1，
+              会把本来刚好放得下的公式越缩越小 */
+        for (var i = 0; i < 4; i++) {
+            var needW = box.scrollWidth, haveW = box.clientWidth;
+            var needH = box.scrollHeight, haveH = box.clientHeight;
+            if (!needW || !haveW || !needH || !haveH) { break; }
+            var k = 1;
+            if (needW > haveW + 0.5) { k = Math.min(k, haveW / needW); }
+            if (needH > haveH + 0.5) { k = Math.min(k, haveH / needH); }
+            if (k > 0.995) { break; }               // 已经放得下
+            scale = Math.max(FC_MIN_SCALE, scale * k);
+            box.style.setProperty('--fc-scale', scale.toFixed(3));
+            if (scale <= FC_MIN_SCALE) { break; }   // 到达下限，剩下交给滑动查看
+        }
+        updateScrollHint();
+    }
+
+    /* KaTeX 的 Web 字体是异步加载的：字体就绪前后公式宽度会明显变化，
+       若只按回退字体测量，会把本可完整显示的公式缩得过小。
+       因此字体到位后（以及后续每批字体加载完成时）重新适配一次。 */
+    function refitIfOpen() {
+        if (card && !card.hidden) { fitFormula(); }
+    }
+
+    if (window.document.fonts) {
+        if (document.fonts.ready && document.fonts.ready.then) {
+            document.fonts.ready.then(refitIfOpen);
+        }
+        if (document.fonts.addEventListener) {
+            document.fonts.addEventListener('loadingdone', refitIfOpen);
+        }
+    }
+
+    /* ---------- 更新滑动提示：方向、文案、光标 ---------- */
+    function updateScrollHint() {
+        var box = cardFormulaBox;
+        if (!box || !cardHint) { return; }
+        var canRight = box.scrollWidth - box.clientWidth - box.scrollLeft > SCROLL_TOL;
+        var canLeft = box.scrollLeft > SCROLL_TOL;
+        var canDown = box.scrollHeight - box.clientHeight - box.scrollTop > SCROLL_TOL;
+        var canUp = box.scrollTop > SCROLL_TOL;
+
+        var arrows = (canLeft ? '←' : '') + (canRight ? '→' : '') + (canUp ? '↑' : '') + (canDown ? '↓' : '');
+        var show = arrows !== '';
+        cardHint.hidden = !show;
+        box.classList.toggle('can-scroll', show);
+        /* 横向放不下时改为左对齐：KaTeX display 模式默认居中，
+           超宽内容会向两侧溢出，左侧部分滚不到 */
+        box.classList.toggle('fc-hscroll', canLeft || canRight);
+        if (!show) { return; }
+
+        var ahead = canRight || canDown;      // 前方（右下）还有没看完的内容
+        var horiz = canLeft || canRight;
+        var vert = canUp || canDown;
+        var text;
+        if (ahead && horiz && vert) { text = '可左右 / 上下滑动'; }
+        else if (ahead && horiz) { text = '向右滑动看完整公式'; }
+        else if (ahead && vert) { text = '向下滑动看完整公式'; }
+        else if (horiz) { text = '向左滑动回到开头'; }
+        else { text = '向上滑动回到开头'; }
+
+        cardHintArrow.textContent = arrows;
+        cardHintText.textContent = text;
+        cardHint.setAttribute('data-dir',
+            canRight ? 'right' : (canDown ? 'down' : (canLeft ? 'left' : 'up')));
     }
 
     /* ---------- 打开介绍卡（就近定位，防止超出视口） ---------- */
@@ -699,9 +857,9 @@
         cardLinksWrap.style.display = shown ? '' : 'none';
 
         card.hidden = false; // 先显示再测量，尺寸才准确
-        /* 公式过宽时把卡片加宽一档（380 → 480px），尽量完整展示；
-           仍放不下则由公式框横向滚动，不撑破卡片 */
-        card.classList.toggle('fc-wide', cardFormulaBox.scrollWidth > cardFormulaBox.clientWidth + 4);
+        /* 自适应：需要时加宽卡片（380 → 480）→ 仍放不下则等比缩字号 →
+           缩到下限还放不下则显示滑动提示（fitFormula 内统一处理） */
+        fitFormula();
         var r = item.getBoundingClientRect();
         var cw = card.offsetWidth;
         var ch = card.offsetHeight;
@@ -752,13 +910,19 @@
         // KaTeX 渲染出的 DOM 对读屏器不友好，用 aria-label 提供可读描述
         item.setAttribute('aria-label', (d.name || '公式') + '：' + (d.proposer || ''));
 
-        /* 左右两侧交替分布：偶数在左，奇数在右，位置随机 */
+        /* 左右两侧交替分布：偶数在左、奇数在右，位置随机。
+           水平位置用「相对容器的 calc(百分比/变量)」表达，
+           不再按构建时的 window.innerWidth 折算成 px ——
+           窗口缩放后位置自动按新宽度重新折算，不需要重建漂浮项。 */
         var side = idx % 2 === 0;
-        var gutterW = Math.min(window.innerWidth * 0.14, 220);
-        var left = side
-            ? Math.random() * (gutterW - 60)
-            : window.innerWidth - gutterW + Math.random() * (gutterW - 80);
-        item.style.left = left + 'px';
+        var f = Math.random();
+        if (side) {
+            /* 左侧栏：左边缘落在 0 ~ 85% 栏宽处 */
+            item.style.left = 'calc(var(--gutter) * ' + (f * 0.85).toFixed(3) + ')';
+        } else {
+            /* 右侧栏：左边缘落在栏宽 20% ~ 100% 处（贴右边缘，超出部分由容器裁剪） */
+            item.style.left = 'calc(100% - var(--gutter) * ' + (0.2 + f * 0.8).toFixed(3) + ')';
+        }
 
         if (reduced) {
             /* 减弱动画：固定位置 + 降低透明度，不播放浮动动画 */
@@ -812,15 +976,16 @@
             var dx = e.clientX - startX;
             var dy = e.clientY - startY;
             if (!moved && Math.sqrt(dx * dx + dy * dy) > 6) {
-                /* 位移超过阈值：进入拖拽态，停掉动画并跟随指针 */
+                /* 位移超过阈值：进入拖拽态。
+                   动画已由 .held 暂停（停在当前帧），因此不必 animation:none，
+                   也就不需要再写 left/top 去"复位"。 */
                 moved = true;
-                item.style.animation = 'none';
-                item.style.bottom = 'auto';
-                item.style.transform = 'none';
             }
             if (moved) {
-                item.style.left = (e.clientX - 40) + 'px';
-                item.style.top = (e.clientY - 10) + 'px';
+                /* 相对位移：写独立 translate 属性，
+                   保留原有的相对定位基准（left/bottom 与动画），
+                   松手或关闭卡片后仍回到原本的位置继续漂浮。 */
+                item.style.translate = dx + 'px ' + dy + 'px';
             }
         });
         var endDrag = function () {
@@ -867,6 +1032,9 @@
         var reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
         var items = sample(currentData, n);
         items.forEach(function (d, idx) { buildItem(d, idx, reduced); });
+
+        /* 建项之后再校准一次容器尺寸（首帧可能取不到布局） */
+        syncFieldMetrics();
     }
 
     /* ---------- 渲染请求入口：
