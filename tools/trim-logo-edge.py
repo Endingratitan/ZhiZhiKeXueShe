@@ -212,6 +212,9 @@ def trim(src, dst, dry_run=False, feather=True, report=False, force=False):
     if r_vis <= R + BAND + 0.75 and not force:
         print(f"检测到最外可见半径 {r_vis:.2f} 已在「圆 {R:.2f} + 抗锯齿带 {BAND}」之内，"
               f"无需处理（未修改文件；如需强制重绘请加 --force）")
+        if dst != src:          # 便于流水线串联：指定了 --out 时按原样写出
+            im.save(dst, "PNG", optimize=True)
+            print(f"已按原样写出: {dst}")
         return
 
     removed = repainted = 0
