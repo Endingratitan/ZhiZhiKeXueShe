@@ -11,13 +11,7 @@
     "address": "contact@hunnucupt.top"
   },
   "groups": [
-    {
-      "name": "微信公众号",
-      "icon": "chat",
-      "desc": "扫码或搜索「致知科学社」关注",
-      "qr": "assets/images/qr-placeholder-wechat.png",
-      "qrAlt": "微信公众号二维码（占位图，待替换）"
-    },
+    
     {
       "name": "QQ 招新群",
       "icon": "users",
