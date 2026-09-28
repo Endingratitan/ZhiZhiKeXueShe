@@ -81,7 +81,7 @@
                             </span>
                             <div>
                                 <strong>邮箱</strong>
-                                <p>contact@example.com（占位）</p>
+                                <p><a href="mailto:contact@hunnucupt.top" data-club-href="email.address" data-club-href-prefix="mailto:" data-club="email.address">contact@hunnucupt.top</a></p>
                             </div>
                         </li>
                         <li class="contact-item reveal">
@@ -92,7 +92,7 @@
                             </span>
                             <div>
                                 <strong>公众号 / 交流群</strong>
-                                <p>扫码或搜索加入（占位）</p>
+                                <p data-club-list="groups">微信公众号：扫码或搜索「致知科学社」关注<br>交流群：扫码或搜索加入</p>
                             </div>
                         </li>
                         <li class="contact-item reveal">
@@ -104,7 +104,7 @@
                             </span>
                             <div>
                                 <strong>活动地点</strong>
-                                <p>湖南师范大学 · 格物楼（具体教室见各活动通知）</p>
+                                <p data-club="address">湖南师范大学 · 格物楼（具体教室见各活动通知）</p>
                             </div>
                         </li>
                     </ul>
@@ -117,9 +117,9 @@
                     </div>
                 </div>
 
-                <!-- ↓ 占位：校园地图，可替换为真实地图或示意图 ↓ -->
+                <!-- ↓ 地图说明由 assets/data/club-info.json 的 mapNote 填充（data-club="mapNote"）↓ -->
                 <div class="map-placeholder reveal contact-map">
-                    <span>校园地图占位 · 敬请期待</span>
+                    <span data-club="mapNote">校园地图位置示意图（待补充）</span>
                 </div>
             </div>
         </section>
@@ -154,5 +154,7 @@
     <script src="../../assets/js/formular/formulas.js"></script>
     <script src="../../assets/js/setting.js"></script>
     <script src="../../assets/js/formular/formular-editor.js"></script>
+    <script src="../../assets/js/club-info/fill-club-info.js"></script>
+    <script src="../../assets/js/club-info/club-QRcode.js"></script>
 </body>
 </html>

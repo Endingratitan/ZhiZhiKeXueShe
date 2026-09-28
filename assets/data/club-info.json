@@ -1,0 +1,33 @@
+{
+  "_说明": "社团信息唯一数据源。由 assets/js/fill-club-info.js 读取，填充到页面里带 data-club / data-club-list / data-club-href / data-club-img 标记的元素。图片路径按「站点根相对」写（如 assets/images/xxx.png），首页与子页面都能用。改这里即可，不用动 HTML（注意 CDN/浏览器缓存）。字段可自由扩展：对象、数组都行。",
+  "ui": {
+    "_说明": "qrSize＝悬停弹窗里二维码的边长(px)；groupGap＝色块间距(px)；groupMinWidth＝单个色块最小宽度(px)——放得下就两个一排，放不下自动变一排。颜色走站点 CSS 变量，跟随明暗主题；二维码底色保持白色（需要浅色静区）。",
+    "qrSize": 150,
+    "groupGap": 8,
+    "groupMinWidth": 150
+  },
+  "email": {
+    "label": "邮箱",
+    "address": "contact@hunnucupt.top"
+  },
+  "groups": [
+    {
+      "name": "微信公众号",
+      "icon": "chat",
+      "desc": "扫码或搜索「致知科学社」关注",
+      "qr": "assets/images/qr-placeholder-wechat.png",
+      "qrAlt": "微信公众号二维码（占位图，待替换）"
+    },
+    {
+      "name": "QQ 招新群",
+      "icon": "users",
+      "desc": "群号 1121245803 · 扫码加入",
+      "qr": "assets/images/QRcode/zzkxs-new-qr-light.webp",
+      "qrAlt": "致知科学社 QQ 招新群二维码",
+      "qrDark": "assets/images/QRcode/zzkxs-new-qr-dark.webp"
+    }
+  ],
+  "address": "湖南师范大学 · 格物楼（具体教室见各活动通知）",
+  "mapNote": "校园地图位置示意图（待补充）",
+  "joinInfo": "招新报名方式即将公布，可先通过「联系我们」找到我们。"
+}
