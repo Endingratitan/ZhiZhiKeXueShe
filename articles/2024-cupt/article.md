@@ -43,7 +43,7 @@
 
 ![](figs/02-theory.webp "")
 
-![正方队员在电脑前准备展示材料](figs/03-preparation.webp "")
+![](figs/03-preparation.webp "")
 
 ![观众席同学起身提问](figs/04-question.webp "观众席同学起身提问")
 
