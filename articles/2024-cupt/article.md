@@ -41,9 +41,9 @@
 
 以下为活动现场照片。
 
-![正方队员讲解“3.1 理论分析”中的受力分析](figs/02-theory.webp "主讲人讲解“3.1 理论分析”中的受力分析")
+![](figs/02-theory.webp "")
 
-![反方队员在电脑前准备展示材料](figs/03-preparation.webp "两位同学在电脑前准备展示材料")
+![正方队员在电脑前准备展示材料](figs/03-preparation.webp "")
 
 ![观众席同学起身提问](figs/04-question.webp "观众席同学起身提问")
 
