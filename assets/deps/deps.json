@@ -1,0 +1,39 @@
+{
+  "_doc": "vendor 清单：改 source 切换 local/oss；字段/校验值见 assets/vendor/README.md 与 CHECKSUMS.txt。",
+  "schema": 1,
+  "browserCacheSeconds": 23328000,
+  "serviceWorker": {
+    "enabled": true,
+    "cacheSeconds": 23328000,
+    "precache": [
+      "katex.js",
+      "katex.css",
+      "hljs.js"
+    ]
+  },
+  "source": "local",
+  "sources": {
+    "local": {
+      "base": "../vendor/",
+      "swCache": true
+    },
+    "oss": {
+      "base": "https://bucket.hunnucupt.top/webAssets/vendor/",
+      "swCache": true,
+      "cors": true
+    }
+  },
+  "deps": {
+    "katex": {
+      "version": "0.19.0",
+      "js": "katex/katex.min.js",
+      "css": [
+        "katex/katex.min.css"
+      ]
+    },
+    "hljs": {
+      "version": "11.12.0",
+      "js": "hljs/highlight.min.js"
+    }
+  }
+}

@@ -84,15 +84,11 @@
        JSON 文件写  "F = \\frac{a}{b}"  → 实际得到  F = \frac{a}{b}
 
    【KaTeX 渲染】
-   - 本脚本在运行时按需（懒加载）注入 KaTeX 的 CSS 与 JS，
-     CDN 使用 jsDelivr，版本锁定为 KATEX_VERSION（避免 CDN
-     大版本升级导致渲染行为变化）。窄屏不会触发 CDN 请求，
-     只有宽屏渲染或编辑器预览时才加载；
-   - 若 CDN 加载失败（断网 / 被墙 / CSP 限制），自动降级为
-     直接显示 LaTeX 源码文本，公式流功能不受影响；
-   - 国内网络若访问 jsDelivr 不稳定，可改为 unpkg 或把
-     katex.min.css / katex.min.js 下载到 assets/vendor/katex/
-     本地托管后替换下方两个常量。
+   - **优先使用站点自托管版本**：assets/deps/loader.js + assets/vendor/katex/
+     （版本统一在 loader 里；窄屏不会触发加载，只有宽屏渲染或编辑器预览时才加载）；
+   - loader 不可用（如 forTest 页面没有引入）或本地 vendor 加载失败时，
+     回退到下方 CDN（jsDelivr，KATEX_VERSION 锁定）——两条路径都失败则
+     降级为直接显示 LaTeX 源码文本，公式流功能不受影响。
 
    【渲染降级策略（三级）】
    1. KaTeX 就绪        → katex.render 渲染为排版级数学公式；
@@ -204,6 +200,19 @@
         if (window.katex && typeof window.katex.render === 'function') {
             return Promise.resolve(true); // 同页其他脚本已加载过 → 复用
         }
+        /* 优先走 assets/deps/loader.js 的本地 vendor（统一版本、无第三方 CDN）；
+           没有 loader（如 forTest 页面）或加载失败时才回退下方 CDN。 */
+        if (window.ZZKXS && window.ZZKXS.deps && typeof window.ZZKXS.deps.katex === 'function') {
+            return window.ZZKXS.deps.katex().then(function (ok) {
+                if (ok) { return true; }
+                return loadKatexFromCdn();
+            });
+        }
+        return loadKatexFromCdn();
+    }
+
+    /* 兜底：CDN 懒加载（本地 vendor 不可用时） */
+    function loadKatexFromCdn() {
         var css = document.createElement('link');
         css.rel = 'stylesheet';
         css.href = KATEX_CSS; // 样式失败无碍：公式仍以源码文本显示

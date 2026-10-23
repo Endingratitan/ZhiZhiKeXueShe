@@ -530,6 +530,7 @@
     }
 
     function renderList() {
+        var q = query.trim();   // 空态文案用：区分「无匹配结果」与「暂无公式」
         listEl.innerHTML = '';
         countEl.textContent = String(workData.length);
 

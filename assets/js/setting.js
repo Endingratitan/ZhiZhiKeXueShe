@@ -5,6 +5,9 @@
    - 在导航栏主题切换按钮旁注入「设置」按钮（齿轮图标）；
    - 呼出设置面板弹窗；目前面板仅含一个入口：「公式编辑器」，
      点击后调起 window.ZZKXS.formular.openEditor()；
+   - **公式编辑器按需加载**：编辑器 JS（约 63 KB）与样式（约 22 KB）不在
+     页面里静态引入，首次点击「公式编辑器」时才注入；失败可再次点击重试。
+     打开编辑器后再由其自身懒加载 publisher/loader。
    - 面板为后续更多设置项预留结构：往 .settings-body 中追加
      .settings-row（整行可点的条目）即可，无需改动其余逻辑；
    - 面板自身通过 window.ZZKXS.settings 暴露 open/close，
@@ -30,6 +33,19 @@
    ============================================================ */
 (function () {
     'use strict';
+
+    /* 当前脚本 URL：懒加载公式编辑器时用它拼绝对路径。
+       currentScript 只在脚本执行期有效，先取出缓存起来。 */
+    var SELF_SRC = (function () {
+        var s = document.currentScript;
+        if (!s || !s.src) {
+            var all = document.getElementsByTagName('script');
+            for (var i = 0; i < all.length; i++) {
+                if (all[i].src && all[i].src.indexOf('setting.js') !== -1) { s = all[i]; break; }
+            }
+        }
+        return (s && s.src) ? s.src : '';
+    })();
 
     var themeToggle = document.getElementById('themeToggle');
     if (!themeToggle) { return; } // 无导航栏页面（如 forTest）不注入
@@ -114,15 +130,79 @@
     });
 
     /* ============================================================
-       四、唯一功能入口：公式编辑器
+       四、唯一功能入口：公式编辑器（首次点击才加载编辑器 JS + CSS）
        ============================================================ */
-    openEditorBtn.addEventListener('click', function () {
-        close();
-        var openEditor = window.ZZKXS && window.ZZKXS.formular && window.ZZKXS.formular.openEditor;
-        if (typeof openEditor === 'function') {
-            openEditor();
-        } else {
-            alert('公式编辑器未就绪，请稍后或刷新页面重试。');
+    var editorLoading = null;   // Promise<boolean>；加载中复用，失败后清空以允许重试
+
+    function editorUrl(rel) {
+        try { return new URL(rel, SELF_SRC).href; }
+        catch (e) { return ''; }   // 极老浏览器没有 URL：返回空串，走失败提示
+    }
+
+    function loadEditor() {
+        if (!SELF_SRC) { return Promise.resolve(false); }
+        return new Promise(function (resolve) {
+            /* 样式与脚本并行加载；样式失败不阻塞（功能仍可用，只是少了排版） */
+            var css = document.createElement('link');
+            css.rel = 'stylesheet';
+            css.href = editorUrl('../css/formular/formular-editor.css');
+            var cssReady = new Promise(function (r) { css.onload = r; css.onerror = r; });
+            document.head.appendChild(css);
+
+            var s = document.createElement('script');
+            s.src = editorUrl('formular/formular-editor.js');
+            s.async = true;
+            s.onload = function () {
+                /* 等样式也加载完再打开，避免首次打开瞬间无样式的闪烁 */
+                cssReady.then(function () {
+                    resolve(!!(window.ZZKXS && window.ZZKXS.formular && typeof window.ZZKXS.formular.openEditor === 'function'));
+                });
+            };
+            s.onerror = function () { resolve(false); };   // 失败不抛异常，由调用方提示
+            document.head.appendChild(s);
+        });
+    }
+
+    function ensureEditor() {
+        var api = window.ZZKXS && window.ZZKXS.formular;
+        if (api && typeof api.openEditor === 'function') { return Promise.resolve(true); }
+        if (!editorLoading) {
+            editorLoading = loadEditor().then(function (ok) {
+                if (!ok) { editorLoading = null; }   // 失败不缓存，下次点击重试
+                return ok;
+            });
         }
+        return editorLoading;
+    }
+
+    openEditorBtn.addEventListener('click', function () {
+        var openEditor = window.ZZKXS && window.ZZKXS.formular && window.ZZKXS.formular.openEditor;
+        if (typeof openEditor === 'function') {   // 已加载过 → 直接打开
+            close();
+            openEditor();
+            return;
+        }
+
+        /* 首次点击：设置面板保持打开、入口显示「正在加载」，就绪后再切换到编辑器；
+           失败可再次点击重试（失败态不缓存） */
+        if (openEditorBtn.disabled) { return; }   // 加载中连点忽略
+        var descEl = openEditorBtn.querySelector('.settings-row-desc');
+        var descText = descEl ? descEl.textContent : '';
+        openEditorBtn.disabled = true;
+        openEditorBtn.setAttribute('aria-busy', 'true');
+        if (descEl) { descEl.textContent = '正在加载…'; }
+
+        ensureEditor().then(function (ok) {
+            openEditorBtn.disabled = false;
+            openEditorBtn.removeAttribute('aria-busy');
+            if (descEl) { descEl.textContent = descText; }
+            var fn = window.ZZKXS && window.ZZKXS.formular && window.ZZKXS.formular.openEditor;
+            if (ok && typeof fn === 'function') {
+                close();
+                fn();
+            } else {
+                alert('公式编辑器加载失败，请检查网络后重试。');
+            }
+        });
     });
 })();

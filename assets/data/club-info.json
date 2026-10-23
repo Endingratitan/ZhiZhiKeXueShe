@@ -12,14 +12,6 @@
   },
   "groups": [
     {
-      "name": "CUPT-2027校赛",
-      "icon": "trophy",
-      "desc": "群号 451448355 · 扫码加入",
-      "qr": "assets/images/QRcode/zzkxs-cupt-qr-light.webp",
-      "qrDark": "assets/images/QRcode/zzkxs-cupt-qr-dark.webp",
-      "qrAlt": "CUPT-2027 校赛 QQ 群二维码"
-    },
-    {
       "name": "QQ 招新群",
       "icon": "users",
       "desc": "群号 1121245803 · 扫码加入",
