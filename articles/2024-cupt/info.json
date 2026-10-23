@@ -1,17 +1,18 @@
 {
   "schema": 1,
-  "title": "2024 年 CUPT 表演赛",
-  "summary": "社团成立后举办的首届 CUPT 表演赛，开启了品牌赛事的序幕。",
-  "date": "2024-11-10",
-  "updated": "2024-11-10",
-  "authors": [],
+  "title": "2024 年首届 CUPT 表演赛",
+  "summary": "2024 年 11 月 10 日，致知科学社在理学院 109 举办社团首届 CUPT 表演赛，三位主讲人完整演示比赛流程，带同学们近距离了解这项团队辩论赛事。",
+  "updated": "2026-10-24",
+  "authors": ["致知科学社"],
   "editors": [],
   "column": "社团动态",
-  "tags": [
-    "CUPT"
-  ],
-  "cover": "",
+  "tags": ["CUPT", "物理竞赛", "表演赛"],
+  "cover": "figs/01-overview.webp",
   "license": "",
   "draft": false,
-  "important": "cupt"
+  "important": "CUPT",
+  "source": {
+    "name": "微信公众号《社团集结号｜赛事速报 CUPT表演赛精彩来袭！》",
+    "url": "https://mp.weixin.qq.com/s?__biz=MzIwNjI3NzgwNQ==&mid=2650345950&idx=1&sn=2a5270308dc1493e984e3b6813872750"
+  }
 }

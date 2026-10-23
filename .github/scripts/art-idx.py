@@ -24,6 +24,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 CONFIG_PATH = ROOT / "articles" / "art-idx.config"
 SLUG_RE = re.compile(r"^[a-z0-9][a-z0-9-]*$")
+IMPORTANT_RE = re.compile(r"^[A-Z0-9][A-Z0-9-]*$")
 DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 
 
@@ -106,8 +107,8 @@ def main():
         groups[column].append(item)
         important = info.get("important")
         if important is not None:
-            if not isinstance(important, str) or not SLUG_RE.match(important):
-                raise SystemExit(f"{slug}/info.json 的 important 须为小写连字符字符串：{important!r}")
+            if not isinstance(important, str) or not IMPORTANT_RE.match(important):
+                raise SystemExit(f"{slug}/info.json 的 important 须为大写连字符字符串（如 CUPT）：{important!r}")
             important_groups[column].append(item)
         cover = info.get("cover")
         if cover and not (info_path.parent / cover).exists():

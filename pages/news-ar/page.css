@@ -82,6 +82,10 @@ main.article-main {
     .art-cover img { max-height: 260px; }
 }
 
+/* ---------- 三条件门控：正文未放行前隐藏 ---------- */
+.art-page.cover-gated #artBody,
+.art-page.cover-gated .art-foot { display: none; }
+
 /* ---------- 封面 ----------
    width 始终受控（不超过纸面）；加载阶段 height 不限、按原始比例自然展开；
    正文就绪后（.article-loaded）缩小，并按中间内容截取（object-fit: cover）。
