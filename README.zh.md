@@ -46,5 +46,8 @@ project
 ### 2.部分动态功能
 暂不在此说明技术细节与规划。
 
+## 授权
 
-
+- 代码：Apache License 2.0，见 `LICENSE`
+- 文章、照片、社徽、社团名称等非代码内容：保留所有权利，见 `LICENSE-CONTENT`
+- 第三方组件：见 `NOTICE`
