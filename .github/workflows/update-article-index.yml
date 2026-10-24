@@ -1,0 +1,39 @@
+name: Update article indexes
+
+on:
+  push:
+    paths:
+      - "articles/**"
+      - ".github/scripts/**"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: update-article-index-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Generate indexes
+        run: python3 .github/scripts/art-idx.py --write
+
+      - name: Commit index changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add articles/index-*.json articles/*-important.json
+          if git diff --cached --quiet; then
+            echo "No index changes"
+            exit 0
+          fi
+          git commit -m "chore: update article indexes"
+          git push

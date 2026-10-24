@@ -1,0 +1,23 @@
+{
+  "schema": 1,
+  "title": "单摆的等时性与它的非线性修正",
+  "summary": "从伽利略的等时性观察到小角近似，再到数值验证：一次关于周期测量误差的微型实验。",
+  "date": "2026-10-18",
+  "updated": "2026-10-20",
+  "authors": [
+    1,
+    "林知远"
+  ],
+  "editors": [
+    2
+  ],
+  "column": "科研科普",
+  "tags": [
+    "经典力学",
+    "实验物理",
+    "数值方法"
+  ],
+  "cover": "figs/cover-extreme-tall.webp",
+  "license": "CC BY-NC-SA 4.0",
+  "draft": false
+}
