@@ -15,6 +15,7 @@
     <link rel="manifest" href="./favicon/site.webmanifest?v=20261022" />
 
     <link rel="stylesheet" type="text/css" href="./assets/css/index.css">
+    <link rel="stylesheet" type="text/css" href="./assets/css/article-list.css">
     <link rel="stylesheet" type="text/css" href="./assets/css/navbar.css">
     <link rel="stylesheet" type="text/css" href="./assets/css/formular/formulas.css">
     <link rel="stylesheet" type="text/css" href="./assets/css/setting.css">
@@ -60,7 +61,8 @@
     <main>
 
         <!-- ======================= 首屏 Hero ======================= -->
-        <section class="hero" id="home">
+        <div class="hero-stage" id="home">
+            <section class="hero">
             <div class="hero-bg" aria-hidden="true">
                 <span class="blob blob-a"></span>
                 <span class="blob blob-b"></span>
@@ -83,16 +85,57 @@
                     </div>
                 </div>
 
-                <div class="hero-logo reveal">
-                    <div class="orbit orbit-outer" aria-hidden="true"></div>
-                    <div class="orbit orbit-inner" aria-hidden="true"></div>
-                    <div class="logo-frame">
-                        <img src="./assets/images/zzkxs_icon.png" alt="致知科学社 logo">
+                <div class="hero-logo reveal" aria-hidden="true">
+                    <div class="hero-figure">
+                        <svg class="hero-orbit-svg" viewBox="0 0 560 560" role="img" aria-label="致知科学社社徽与轨道示意图">
+                            <defs>
+                                <radialGradient id="heroGlow" cx="50%" cy="50%" r="50%">
+                                    <stop offset="0%" stop-color="var(--accent)" stop-opacity="0.14"/>
+                                    <stop offset="100%" stop-color="var(--accent)" stop-opacity="0"/>
+                                </radialGradient>
+                            </defs>
+                            <g class="hero-back-layer">
+                                <circle cx="280" cy="280" r="176" fill="url(#heroGlow)"/>
+                                <circle cx="280" cy="280" r="238" class="fig-ring fig-ring-outer"/>
+                                <circle cx="280" cy="280" r="203" class="fig-ring fig-ring-inner"/>
+                                <g class="fig-ticks">
+                                    <circle cx="280" cy="280" r="238" class="fig-ticks-circle"/>
+                                    <circle cx="280" cy="280" r="203" class="fig-ticks-circle fig-ticks-small"/>
+                                </g>
+                                <line x1="280" y1="24" x2="280" y2="536" class="fig-axis"/>
+                                <line x1="24" y1="280" x2="536" y2="280" class="fig-axis"/>
+
+                                <ellipse cx="280" cy="280" rx="252" ry="112" class="orbit-ring orbit-ring-1"/>
+                                <path id="orbit-flat-1" d="M 532 280 A 252 112 0 1 1 28 280 A 252 112 0 1 1 532 280" fill="none" stroke="none"/>
+                                <g class="orbit-planet planet-1">
+                                    <circle r="4"/>
+                                    <animateMotion dur="24s" repeatCount="indefinite" rotate="auto">
+                                        <mpath href="#orbit-flat-1"/>
+                                    </animateMotion>
+                                </g>
+
+                                <ellipse cx="280" cy="280" rx="210" ry="86" class="orbit-ring orbit-ring-2"/>
+                                <path id="orbit-flat-2" d="M 490 280 A 210 86 0 1 0 70 280 A 210 86 0 1 0 490 280" fill="none" stroke="none"/>
+                                <g class="orbit-planet planet-2">
+                                    <circle r="3.2"/>
+                                    <animateMotion dur="17s" repeatCount="indefinite" rotate="auto">
+                                        <mpath href="#orbit-flat-2"/>
+                                    </animateMotion>
+                                </g>
+                            </g>
+                        </svg>
+                        <div class="logo-stack">
+                            <span class="logo-halo" aria-hidden="true"></span>
+                            <span class="logo-disc-back" aria-hidden="true"></span>
+                            <div class="logo-frame">
+                                <img src="./assets/images/zzkxs_icon.png" alt="致知科学社 logo">
+                            </div>
+                        </div>
+
+
                     </div>
-                    <span class="orbit-dot dot-a" aria-hidden="true"></span>
-                    <span class="orbit-dot dot-b" aria-hidden="true"></span>
-                </div>
-            </div>
+                    <p class="fig-caption"><span>FIG. 01</span> 社徽 / EST. 2024</p>
+                </div>            </div>
 
             <div class="container stats-bar reveal">
                 <div class="stat">
@@ -108,11 +151,13 @@
                     <span class="stat-label">大品牌体系</span>
                 </div>
                 <div class="stat">
-                    <span class="stat-num">3</span>
+                    <span class="stat-num">4</span>
                     <span class="stat-label">场品牌活动</span>
                 </div>
             </div>
-        </section>
+            </section>
+            <div class="hero-pin-space" aria-hidden="true"></div>
+        </div>
 
         <!-- ======================= 关于我们 ======================= -->
         <section class="section" id="about">
@@ -193,52 +238,7 @@
                 <p class="section-eyebrow reveal">社团动态 · News</p>
                 <h2 class="section-title reveal">最新动态</h2>
 
-                <div class="card-grid">
-                    <article class="post-card reveal">
-                        <a class="post-thumb" href="pages/news-ar/article.html#2026-science-quiz" aria-label="查看科普知识竞赛详情">
-                            <img src="./assets/images/news/2026-science-quiz-group.webp" alt="科普知识竞赛复赛合影" loading="lazy">
-                        </a>
-                        <div class="post-body">
-                            <div class="post-meta">
-                                <span class="tag">科普竞赛</span>
-                                <time datetime="2026-03-26">2026.03.26–27</time>
-                            </div>
-                            <h3>「科普知识竞赛」在格物楼举行</h3>
-                            <p>初赛、决赛分别于格物楼 219、217 开展，从全校选手中决出前四名与优胜奖。</p>
-                            <a class="post-link" href="pages/news-ar/article.html#2026-science-quiz">阅读更多 →</a>
-                        </div>
-                    </article>
-
-                    <article class="post-card reveal">
-                        <a class="post-thumb" href="pages/news-ar/article.html#2025-cupt" aria-label="查看 2025 CUPT 表演赛详情">
-                            <img src="./assets/images/news/2025-cupt-report.webp" alt="2025 年 CUPT 表演赛正反主控汇报" loading="lazy">
-                        </a>
-                        <div class="post-body">
-                            <div class="post-meta">
-                                <span class="tag">CUPT</span>
-                                <time datetime="2025-10-29">2025.10.29</time>
-                            </div>
-                            <h3>2025 年 CUPT 表演赛成功举办</h3>
-                            <p>以「瑞利贝纳德对流」为题，严格复刻 CUPT 赛程，呈现一场思维与视觉的双重盛宴。</p>
-                            <a class="post-link" href="pages/news-ar/article.html#2025-cupt">阅读更多 →</a>
-                        </div>
-                    </article>
-
-                    <article class="post-card reveal">
-                        <a class="post-thumb" href="pages/news-ar/article.html#2024-cupt" aria-label="查看 2024 CUPT 表演赛详情">
-                            <span>照片整理中</span>
-                        </a>
-                        <div class="post-body">
-                            <div class="post-meta">
-                                <span class="tag">CUPT</span>
-                                <time datetime="2024-11-10">2024.11.10</time>
-                            </div>
-                            <h3>2024 年 CUPT 表演赛</h3>
-                            <p>社团成立后举办的首届 CUPT 表演赛，开启了品牌赛事的序幕。</p>
-                            <a class="post-link" href="pages/news-ar/article.html#2024-cupt">阅读更多 →</a>
-                        </div>
-                    </article>
-                </div>
+                <div class="card-grid list-grid" id="homeNewsList" aria-live="polite"></div>
 
                 <div class="hero-actions hero-actions-center reveal">
                     <a class="btn btn-ghost" href="pages/news/index.html">查看全部动态 →</a>
@@ -377,5 +377,7 @@
     <script src="./assets/js/setting.js"></script>
     <script src="./assets/js/club-info/fill-club-info.js"></script>
     <script src="./assets/js/club-info/club-QRcode.js"></script>
+    <script type="module" src="./assets/js/home/list.js?v=20261025"></script>
+    <script type="module" src="./assets/js/home/hero.js?v=20261025"></script>
 </body>
 </html>

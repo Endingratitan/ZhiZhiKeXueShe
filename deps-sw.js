@@ -3,7 +3,10 @@
    两类缓存：
    1) vendor（`/assets/vendor/` 或 deps.json 配置的跨域 base）：
       cache-first 9 个月，响应带 `x-zzkxs-stored-at`，过期则回源并打新戳；
-   2) 站点资源（同源 GET：HTML/JS/CSS/JSON/MD 等）：**SWR**
+   2) 站点 JS/CSS（同源，含版本查询参数）：安装时按 /assets/deps/site-assets.json
+      预下载；cache-first，保留 12 个月，9 个月后视为过期回源更新；
+      回源失败时在 12 个月保留期内继续用旧缓存。
+   3) 其他站点资源（同源 GET：HTML/JSON/MD 等）：**SWR**
       先返回缓存（x-zzkxs-sw: swr-hit），同时后台回源更新；
       图片/字体等二进制：cache-first，不后台刷新；
    例外（不缓存，保证能及时更新）：/deps-sw.js、/assets/deps/loader.js、/assets/deps/deps.json。
@@ -16,6 +19,11 @@ var SITE_CACHE = 'zzkxs-site-v1';          // 站点资源缓存：跨 SW 版本
 var MANIFEST_PATH = '/assets/deps/deps.json';
 var DEFAULT_TTL_MS = 9 * 30 * 24 * 60 * 60 * 1000;   // ≈23328000 s
 var SITE_REVALIDATE_MS = 60 * 1000;                    // SWR 最短重验间隔（减少重复导航的后台请求）
+var SITE_ASSETS_CACHE = 'zzkxs-assets-v2';             // 本站 JS/CSS 缓存（资源变更时手动递增）
+var SITE_ASSETS_MANIFEST = '/assets/deps/site-assets.json';
+var ASSET_FRESH_MS = 9 * 30 * 24 * 60 * 60 * 1000;     // 9 个月：过期后回源更新
+var ASSET_RETAIN_MS = 12 * 30 * 24 * 60 * 60 * 1000;   // 12 个月：保留旧缓存的兜底期限
+var ASSET_CONCURRENCY = 6;
 var configPromise = null;
 
 var BINARY_RE = /\.(?:png|jpe?g|gif|webp|svg|ico|bmp|woff2?|ttf|otf|eot|mp4|webm|mp3|pdf|zip)$/i;
@@ -167,34 +175,141 @@ function cacheFirstBinary(req) {
     });
 }
 
-self.addEventListener('install', function (e) {
-    e.waitUntil(getConfig().then(function (cfg) {
-        if (!cfg.swCache || !cfg.urls.length) { return null; }
-        return caches.open(cfg.cacheName).then(function (cache) {
-            return Promise.all(cfg.urls.map(function (url) {
-                return cache.match(url).then(function (hit) {
-                    if (hit && fresh(hit, cfg.ttlMs)) { return null; }
-                    return netFetch(new Request(url), cfg).then(function (res) {
+function mapLimit(items, limit, fn) {
+    var index = 0;
+    var workers = [];
+    function next() {
+        if (index >= items.length) { return Promise.resolve(); }
+        var i = index++;
+        return Promise.resolve(fn(items[i], i)).then(function () {
+            return next();
+        }).catch(function () { return next(); });
+    }
+    for (var n = 0; n < Math.min(limit, items.length); n++) { workers.push(next()); }
+    return Promise.all(workers);
+}
+
+function assetAge(res) {
+    var t = parseInt(res.headers.get('x-zzkxs-stored-at') || '0', 10);
+    return t ? (Date.now() - t) : Infinity;
+}
+
+function assetCacheKey(req) {
+    try {
+        var u = new URL(req.url);
+        u.search = '';
+        u.hash = '';
+        return new Request(u.href);
+    } catch (e) {
+        return req;
+    }
+}
+
+function isSiteAsset(pathname) {
+    if (!/\.(?:js|css)$/i.test(pathname)) { return false; }
+    if (pathname.indexOf('/assets/vendor/') === 0) { return false; }
+    return !isExcluded(pathname);
+}
+
+function precacheSiteAssets() {
+    return fetchJson(SITE_ASSETS_MANIFEST + '?ts=' + Date.now()).then(function (data) {
+        var urls = (data && Array.isArray(data.assets)) ? data.assets : [];
+        if (!urls.length) { return null; }
+        return caches.open(SITE_ASSETS_CACHE).then(function (cache) {
+            return mapLimit(urls, ASSET_CONCURRENCY, function (url) {
+                var req = new Request(url, { cache: 'no-cache' });
+                return cache.match(req).then(function (hit) {
+                    if (hit && assetAge(hit) < ASSET_FRESH_MS) { return null; }
+                    return fetch(req).then(function (res) {
                         if (!res || !res.ok) { return null; }
                         return stamp(res, Date.now()).then(function (stored) {
-                            return cache.put(url, stored).catch(function () { return null; });
+                            return cache.put(req, stored).catch(function () { return null; });
                         });
                     }).catch(function () { return null; });
                 });
-            }));
+            });
         });
-    }).then(function () { return self.skipWaiting(); }));
+    }).catch(function () { return null; });
+}
+
+function precacheVendor(cfg) {
+    if (!cfg.swCache || !cfg.urls.length) { return Promise.resolve(null); }
+    return caches.open(cfg.cacheName).then(function (cache) {
+        return Promise.all(cfg.urls.map(function (url) {
+            return cache.match(url).then(function (hit) {
+                if (hit && fresh(hit, cfg.ttlMs)) { return null; }
+                return netFetch(new Request(url), cfg).then(function (res) {
+                    if (!res || !res.ok) { return null; }
+                    return stamp(res, Date.now()).then(function (stored) {
+                        return cache.put(url, stored).catch(function () { return null; });
+                    });
+                }).catch(function () { return null; });
+            });
+        }));
+    });
+}
+
+function cleanupVendor(cfg) {
+    return caches.keys().then(function (keys) {
+        return Promise.all(keys.filter(function (k) {
+            return k.indexOf(PREFIX) === 0 && k !== cfg.cacheName;
+        }).map(function (k) { return caches.delete(k); }));
+    });
+}
+
+function cleanupSiteAssets() {
+    return caches.keys().then(function (keys) {
+        return Promise.all(keys.filter(function (k) {
+            return k.indexOf('zzkxs-assets-') === 0 && k !== SITE_ASSETS_CACHE;
+        }).map(function (k) { return caches.delete(k); }));
+    }).then(function () {
+        return caches.open(SITE_ASSETS_CACHE).then(function (cache) {
+            return cache.keys().then(function (keys) {
+                return Promise.all(keys.map(function (req) {
+                    return cache.match(req).then(function (res) {
+                        if (res && assetAge(res) > ASSET_RETAIN_MS) {
+                            return cache.delete(req);
+                        }
+                    });
+                }));
+            });
+        });
+    }).catch(function () { return null; });
+}
+
+function handleSiteAsset(req) {
+    var key = assetCacheKey(req);
+    return caches.open(SITE_ASSETS_CACHE).then(function (cache) {
+        return cache.match(key).then(function (hit) {
+            var age = hit ? assetAge(hit) : Infinity;
+            if (hit && age < ASSET_FRESH_MS) { return hit; }
+            return fetch(req).then(function (res) {
+                if (!res || !res.ok) {
+                    return (hit && age < ASSET_RETAIN_MS) ? hit : res;
+                }
+                return stamp(res, Date.now()).then(function (stored) {
+                    cache.put(key, stored.clone()).catch(function () { return null; });
+                    return stored;
+                });
+            }).catch(function () {
+                return (hit && age < ASSET_RETAIN_MS) ? hit : new Response('', { status: 504, statusText: 'offline' });
+            });
+        });
+    });
+}
+
+self.addEventListener('install', function (e) {
+    e.waitUntil(Promise.all([
+        getConfig().then(precacheVendor).catch(function () { return null; }),
+        precacheSiteAssets()
+    ]).then(function () { return self.skipWaiting(); }));
 });
 
 self.addEventListener('activate', function (e) {
-    e.waitUntil(getConfig().then(function (cfg) {
-        return caches.keys().then(function (keys) {
-            return Promise.all(keys.filter(function (k) {
-                /* 只清理旧 vendor 缓存；zzkxs-site-v1 跨版本保留 */
-                return k.indexOf(PREFIX) === 0 && k !== cfg.cacheName;
-            }).map(function (k) { return caches.delete(k); }));
-        });
-    }).then(function () { return self.clients.claim(); }));
+    e.waitUntil(Promise.all([
+        getConfig().then(cleanupVendor).catch(function () { return null; }),
+        cleanupSiteAssets()
+    ]).then(function () { return self.clients.claim(); }));
 });
 
 self.addEventListener('fetch', function (e) {
@@ -212,12 +327,17 @@ self.addEventListener('fetch', function (e) {
         }
         /* 2) 配置/SW/loader：不缓存，交给网络 */
         if (isExcluded(url.pathname)) { return; }
-        /* 3) 图片/字体：cache-first */
+        /* 3) 本站 JS/CSS：缓存 12 个月，9 个月后过期回源 */
+        if (isSiteAsset(url.pathname)) {
+            e.respondWith(handleSiteAsset(req));
+            return;
+        }
+        /* 4) 图片/字体：cache-first */
         if (BINARY_RE.test(url.pathname)) {
             e.respondWith(cacheFirstBinary(req));
             return;
         }
-        /* 4) 其余站点资源：SWR */
+        /* 5) 其余站点资源：SWR */
         e.respondWith(swr(e, req));
         return;
     }

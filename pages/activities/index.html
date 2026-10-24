@@ -15,6 +15,7 @@
     <link rel="manifest" href="../../favicon/site.webmanifest?v=20261022" />
 
     <link rel="stylesheet" type="text/css" href="../../assets/css/index.css">
+    <link rel="stylesheet" type="text/css" href="../../assets/css/article-list.css">
     <link rel="stylesheet" type="text/css" href="../../assets/css/navbar.css">
     <link rel="stylesheet" type="text/css" href="../../assets/css/formular/formulas.css">
     <link rel="stylesheet" type="text/css" href="../../assets/css/setting.css">
@@ -110,36 +111,7 @@
                 </div>
 
                 <h3 class="sub-title spaced">历届回顾</h3>
-                <div class="card-grid">
-                    <article class="post-card reveal">
-                        <a class="post-thumb" href="../news-ar/article.html#2025-cupt" aria-label="查看 2025 年 CUPT 表演赛详情">
-                            <img src="../../assets/images/news/2025-cupt-group.webp" alt="2025 年 CUPT 表演赛结尾合影" loading="lazy">
-                        </a>
-                        <div class="post-body">
-                            <div class="post-meta">
-                                <span class="tag">CUPT</span>
-                                <time datetime="2025-10-29">2025.10.29</time>
-                            </div>
-                            <h3>2025 年 CUPT 表演赛</h3>
-                            <p>以「瑞利贝纳德对流」为题，在格物楼 109 教室完整复刻 CUPT 赛制。</p>
-                            <a class="post-link" href="../news-ar/article.html#2025-cupt">查看回顾 →</a>
-                        </div>
-                    </article>
-                    <article class="post-card reveal">
-                        <a class="post-thumb" href="../news-ar/article.html#2024-cupt" aria-label="查看 2024 年 CUPT 表演赛详情">
-                            <span>照片整理中</span>
-                        </a>
-                        <div class="post-body">
-                            <div class="post-meta">
-                                <span class="tag">CUPT</span>
-                                <time datetime="2024-11-10">2024.11.10</time>
-                            </div>
-                            <h3>2024 年 CUPT 表演赛</h3>
-                            <p>社团成立后举办的首届 CUPT 表演赛，品牌赛事拉开序幕。</p>
-                            <a class="post-link" href="../news-ar/article.html#2024-cupt">查看回顾 →</a>
-                        </div>
-                    </article>
-                </div>
+                <div class="card-grid list-grid" id="cuptReviewList" aria-live="polite"></div>
             </div>
         </section>
 
@@ -212,5 +184,6 @@
     <script src="../../assets/js/formular/formular-store.js"></script>
     <script src="../../assets/js/formular/formulas.js"></script>
     <script src="../../assets/js/setting.js"></script>
+    <script type="module" src="./list.js?v=20261025"></script>
 </body>
 </html>

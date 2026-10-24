@@ -1,3 +1,58 @@
 /* 联系我们 · 板块样式 */
 .contact-grid-top { margin-top: 0; }
 .contact-map { margin-top: 40px; }
+
+/* ---------- 地图：自适应尺寸 + 点击跳转高德网页 ---------- */
+.contact-map {
+    position: relative;
+    display: block;
+    min-height: 0;
+    margin-top: 40px;
+    border: 1px solid var(--line);
+    background: var(--card);
+}
+.contact-map iframe {
+    display: block;
+    width: 100%;
+    height: clamp(280px, 38vw, 420px);
+    border: 0;
+    pointer-events: none;   /* 点击交给覆盖层跳转高德 */
+}
+.contact-map::after { pointer-events: none; }
+.contact-map .map-link {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    display: flex;
+    align-items: flex-end;
+    justify-content: flex-end;
+    text-decoration: none;
+    cursor: pointer;
+}
+.contact-map .map-link:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: -4px;
+}
+.contact-map .map-open-hint {
+    margin: 14px;
+    padding: 8px 12px;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    border-radius: var(--radius-sm, 8px);
+    background: rgba(8, 16, 28, 0.62);
+    color: #fff;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.04em;
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+    pointer-events: none;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+.contact-map:hover .map-open-hint {
+    background: rgba(8, 16, 28, 0.8);
+    border-color: rgba(255, 255, 255, 0.7);
+}
+@media (max-width: 720px) {
+    .contact-map iframe { height: clamp(240px, 64vw, 360px); }
+    .contact-map .map-open-hint { margin: 10px; font-size: 10px; }
+}

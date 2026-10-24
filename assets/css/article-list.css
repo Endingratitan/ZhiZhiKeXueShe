@@ -178,3 +178,118 @@ main.list-main { padding-bottom: 8px; }
     .important-block { margin-bottom: 40px; padding-bottom: 32px; }
     .post-authors { display: none; }
 }
+
+/* ---------- 自动加载哨兵 / 数字页码 / 查看全部 ---------- */
+.list-sentinel {
+    height: 1px;
+    width: 100%;
+}
+.list-pager {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    margin-top: 32px;
+}
+.list-page {
+    min-width: 36px;
+    height: 36px;
+    padding: 0 10px;
+    border: 1px solid var(--line);
+    background: var(--card);
+    color: var(--ink);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1;
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+.list-page:hover:not(:disabled) { border-color: var(--accent-deep); color: var(--accent-deep); }
+.list-page.is-current {
+    background: var(--ink);
+    border-color: var(--ink);
+    color: var(--card);
+}
+.list-page:disabled { opacity: 0.35; cursor: default; }
+.list-more-link {
+    display: block;
+    margin-top: 20px;
+    text-align: center;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 0.06em;
+    color: var(--accent-deep);
+    text-decoration: none;
+}
+.list-more-link:hover { text-decoration: underline; }
+
+/* ============================================================
+   important 卡片背景装饰：物理 / 简洁
+   - 卡片：淡坐标网格 + 左侧强调线 + 右上角准星
+   - 分组：上下细线 + 淡色顶部提示
+   接口：article.post-card.list-card.is-important[data-important="CUPT"]
+        section.important-block[data-important-group="CUPT"]
+   ============================================================ */
+.important-block {
+    position: relative;
+}
+
+.list-card.is-important {
+    --important-accent: var(--accent);
+    position: relative;
+    background-image:
+        linear-gradient(rgba(15, 163, 255, 0.055) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(15, 163, 255, 0.055) 1px, transparent 1px);
+    background-size: 24px 24px;
+    border-color: color-mix(in srgb, var(--important-accent) 26%, var(--line));
+}
+.list-card.is-important::before {
+    content: "";
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 2px;
+    background: var(--important-accent);
+    opacity: 0.55;
+    pointer-events: none;
+    z-index: 1;
+}
+.list-card.is-important::after {
+    content: "";
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    width: 12px;
+    height: 12px;
+    background:
+        linear-gradient(var(--important-accent), var(--important-accent)) center / 1px 100% no-repeat,
+        linear-gradient(var(--important-accent), var(--important-accent)) center / 100% 1px no-repeat;
+    opacity: 0.32;
+    pointer-events: none;
+    z-index: 1;
+}
+.list-card.is-important:hover::before { opacity: 0.9; }
+.list-card.is-important:hover::after { opacity: 0.55; }
+
+.important-block .important-head {
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--line);
+    margin-bottom: 18px;
+}
+.important-block::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 36px;
+    height: 2px;
+    background: var(--important-accent, var(--accent));
+    opacity: 0.65;
+}
+
+:root[data-theme="dark"] .list-card.is-important {
+    background-image:
+        linear-gradient(rgba(96, 182, 255, 0.09) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(96, 182, 255, 0.09) 1px, transparent 1px);
+}

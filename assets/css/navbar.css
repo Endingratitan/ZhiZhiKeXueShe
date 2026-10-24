@@ -371,3 +371,31 @@
     .nav-dropdown-btn { width: 100%; justify-content: flex-start; }
 }
 
+
+/* 会员登录占位提示 */
+.site-toast {
+    position: fixed;
+    left: 50%;
+    bottom: 36px;
+    z-index: 6000;
+    padding: 10px 20px;
+    border-radius: 999px;
+    background: var(--ink);
+    color: var(--bg);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    opacity: 0;
+    transform: translate(-50%, 10px);
+    pointer-events: none;
+    box-shadow: var(--shadow-md);
+    transition: opacity 0.2s ease, transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.site-toast.show {
+    opacity: 1;
+    transform: translate(-50%, 0);
+}
+
+/* 网站建设横幅暂时隐藏（保留结构，之后可整体恢复） */
+.site-banner { display: none; }

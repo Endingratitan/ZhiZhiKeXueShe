@@ -47,17 +47,18 @@ def load_config():
 
 
 def list_info_files():
+    files = set()
     try:
         out = subprocess.run(
             ["git", "ls-files", "articles/*/info.json"],
             cwd=str(ROOT), capture_output=True, text=True, check=True
         ).stdout
-        files = [ROOT / line.strip() for line in out.splitlines() if line.strip()]
-        if files:
-            return files
+        files.update(ROOT / line.strip() for line in out.splitlines() if line.strip())
     except (subprocess.CalledProcessError, FileNotFoundError):
         pass
-    return sorted((ROOT / "articles").glob("*/info.json"))
+    # 本地新增但尚未 git add 的文章也要被索引（CI 中两者一致）
+    files.update((ROOT / "articles").glob("*/info.json"))
+    return sorted(files)
 
 
 def important_path_for(index_path):

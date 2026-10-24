@@ -164,31 +164,44 @@
         </section>
 
         <!-- 组织架构 -->
-        <section class="section">
+        <section class="section" id="organization" aria-labelledby="orgTitle">
             <div class="container">
-                <p class="section-eyebrow reveal">组织架构 · Team</p>
-                <h2 class="section-title reveal">我们的团队</h2>
-                <!-- ↓ 占位：组织架构正在更新变动，全部待公布 ↓ -->
-                <div class="org-grid">
-                    <div class="org-card reveal">
-                        <p class="org-role">社团负责人</p>
-                        <h3>待公布</h3>
-                        <p>组织架构正在更新中，敬请期待。（占位）</p>
+                <p class="section-eyebrow reveal">团队成员 · Team</p>
+                <h2 class="section-title reveal" id="orgTitle">我们的团队</h2>
+                <p class="section-sub reveal org-intro">社团目前有理事18名，监事4名。</p>
+
+                <div class="org-tree reveal" aria-label="致知科学社组织架构">
+                    <div class="org-row">
+                        <article class="org-node org-node-teacher">
+                            <p class="org-label">指导老师</p>
+                            <h3 class="org-name"><span>单葳</span><span class="org-name-sep">·</span><span>房熊俊</span></h3>
+                        </article>
                     </div>
-                    <div class="org-card reveal">
-                        <p class="org-role">社团理事</p>
-                        <h3>待公布</h3>
-                        <p>组织架构正在更新中，敬请期待。（占位）</p>
+                    <div class="org-connector" aria-hidden="true"></div>
+                    <div class="org-row">
+                        <article class="org-node org-node-chair">
+                            <p class="org-label">理事长</p>
+                            <h3 class="org-name">曾一鸣</h3>
+                        </article>
                     </div>
-                    <div class="org-card reveal">
-                        <p class="org-role">部门设置</p>
-                        <h3>待公布</h3>
-                        <p>组织架构正在更新中，敬请期待。（占位）</p>
-                    </div>
-                    <div class="org-card reveal">
-                        <p class="org-role">指导单位</p>
-                        <h3>待公布</h3>
-                        <p>组织架构正在更新中，敬请期待。（占位）</p>
+                    <div class="org-connector org-connector-branch" aria-hidden="true"></div>
+                    <div class="org-branch">
+                        <article class="org-node org-node-dept">
+                            <h3 class="org-name">团务部</h3>
+                            <p class="org-role">理事</p>
+                        </article>
+                        <article class="org-node org-node-dept">
+                            <h3 class="org-name">活动部</h3>
+                            <p class="org-role">理事</p>
+                        </article>
+                        <article class="org-node org-node-dept">
+                            <h3 class="org-name">材料部</h3>
+                            <p class="org-role">理事</p>
+                        </article>
+                        <article class="org-node org-node-dept">
+                            <h3 class="org-name">监事部</h3>
+                            <p class="org-role">监事</p>
+                        </article>
                     </div>
                 </div>
             </div>

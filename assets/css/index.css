@@ -912,3 +912,218 @@ body { transition: background-color 0.3s ease, color 0.3s ease; }
     }
     .reveal { opacity: 1; transform: none; }
 }
+
+/* ============================================================
+   Hero 升级：直角按钮 / 轨道图版 / sticky 封面 + 滚动退场
+   ============================================================ */
+.hero .btn {
+    border-radius: 2px;
+    padding: 16px 30px;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    box-shadow: none;
+}
+.hero .btn-primary {
+    border: 1px solid var(--ink);
+    background: var(--ink);
+    color: var(--bg);
+}
+.hero .btn-primary:hover {
+    border-color: var(--accent-deep);
+    background: var(--accent-deep);
+    color: #fff;
+    transform: translateY(-1px);
+}
+.hero .btn-ghost {
+    border: 1px solid var(--line);
+    background: transparent;
+    color: var(--ink);
+}
+.hero .btn-ghost:hover {
+    border-color: var(--accent-deep);
+    color: var(--accent-deep);
+    background: transparent;
+    transform: translateY(-1px);
+}
+
+.hero .hero-logo {
+    width: min(600px, 100%);
+    aspect-ratio: 1;
+    margin-inline: auto;
+    padding: 0;
+    position: relative;
+    display: grid;
+    place-items: center;
+}
+.hero-figure {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: grid;
+    place-items: center;
+}
+.hero-orbit-svg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+}
+.fig-ring,
+.fig-orbit,
+.fig-axis,
+.fig-ticks-circle {
+    fill: none;
+    stroke: rgba(15, 163, 255, 0.28);
+    stroke-width: 1;
+}
+.fig-ring-outer { stroke: rgba(15, 163, 255, 0.22); }
+.fig-ring-inner { stroke: rgba(15, 163, 255, 0.12); }
+.fig-orbit { stroke-width: 1.1; stroke: rgba(15, 163, 255, 0.38); }
+.fig-orbit-b { stroke: rgba(11, 111, 216, 0.22); }
+.fig-axis { stroke: var(--hairline); stroke-dasharray: 2 8; }
+.fig-ticks-circle {
+    stroke: rgba(15, 163, 255, 0.32);
+    stroke-dasharray: 1 9;
+    stroke-width: 3;
+}
+.fig-ticks-small { stroke-dasharray: 1 14; stroke-width: 2; }
+.fig-particle { fill: var(--accent); filter: drop-shadow(0 0 4px rgba(15, 163, 255, 0.8)); }
+
+.logo-stack {
+    position: relative;
+    z-index: 3;
+    width: min(304px, 54%);
+    aspect-ratio: 1;
+    display: grid;
+    place-items: center;
+    isolation: isolate;
+}
+.logo-halo {
+    position: absolute;
+    inset: -14%;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(15, 163, 255, 0.16) 0%, transparent 68%);
+    filter: blur(4px);
+    z-index: 0;
+    pointer-events: none;
+}
+.logo-disc-back {
+    position: absolute;
+    inset: 4%;
+    border-radius: 50%;
+    border: 1px solid var(--line);
+    background: color-mix(in srgb, var(--card) 72%, transparent);
+    transform: translate(9px, -11px);
+    z-index: 1;
+    pointer-events: none;
+}
+.hero .logo-frame {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    aspect-ratio: 1;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    border: 1px solid var(--line);
+    background: var(--card);
+    box-shadow:
+        0 0 0 1px color-mix(in srgb, var(--accent) 10%, transparent),
+        0 0 0 12px color-mix(in srgb, var(--card) 55%, transparent),
+        0 0 0 13px var(--line),
+        0 22px 54px rgba(8, 22, 44, 0.18);
+    animation: none;
+}
+.hero .logo-frame img {
+    width: 76%;
+    height: 76%;
+    border-radius: 50%;
+    object-fit: contain;
+}
+
+/* 扁平轨道：两条简单椭圆 + 两个粒子 */
+.orbit-ring {
+    fill: none;
+    stroke: rgba(15, 163, 255, 0.36);
+    stroke-width: 1.2;
+}
+.orbit-ring-2 {
+    stroke: rgba(11, 111, 216, 0.25);
+    stroke-width: 1.1;
+}
+.orbit-planet {
+    fill: var(--accent);
+    filter: drop-shadow(0 0 4px rgba(15, 163, 255, 0.8));
+}
+.orbit-planet.planet-2 { fill: #5b8cff; }
+
+.fig-caption {
+    position: absolute;
+    bottom: -2px;
+    left: 50%;
+    transform: translateX(-50%);
+    white-space: nowrap;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+}
+.fig-caption span { color: var(--accent-deep); margin-right: 8px; }
+
+:root[data-theme="dark"] .fig-ring,
+:root[data-theme="dark"] .fig-orbit,
+:root[data-theme="dark"] .fig-axis,
+:root[data-theme="dark"] .fig-ticks-circle { stroke: rgba(96, 182, 255, 0.32); }
+
+@media (max-width: 900px), (max-height: 760px) {
+    .hero-inner { grid-template-columns: 1fr; gap: 22px; }
+    .hero .hero-logo { width: min(430px, 94%); margin: 8px auto 0; }
+    .logo-stack { width: min(248px, 56%); }
+
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .fig-particle { display: none; }
+}
+
+/* ============================================================
+   Hero 滚动淡出（最早那版）：保持 cover，后段内容淡出/缩小，
+   然后自然解锁进入 About；不使用额外 layer，不做自动跳转。
+   ============================================================ */
+.hero-stage { position: relative; }
+.hero {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 100vh;
+    min-height: 100svh;
+}
+.hero-pin-space { height: var(--hero-hold, 45vh); }
+.hero-inner,
+.stats-bar {
+    opacity: calc(1 - var(--hero-exit, 0) * 0.96);
+    transform: translateY(calc(var(--hero-exit, 0) * -24px)) scale(calc(1 - var(--hero-exit, 0) * 0.025));
+    transform-origin: center top;
+    will-change: transform, opacity;
+}
+.hero-bg { opacity: calc(1 - var(--hero-exit, 0) * 0.35); }
+
+@media (max-width: 900px), (max-height: 760px) {
+    .hero { position: relative; top: auto; min-height: auto; }
+    .hero-pin-space { display: none; }
+    .hero-inner,
+    .stats-bar { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .hero { position: relative; top: auto; min-height: auto; }
+    .hero-pin-space { display: none; }
+    .hero-inner,
+    .stats-bar { opacity: 1; transform: none; }
+}

@@ -161,6 +161,30 @@
         });
     }
 
+    /* ---------- 会员登录：暂时只提示「敬请期待」 ---------- */
+    var siteToast = null;
+    var siteToastTimer = 0;
+    function showSiteToast(message) {
+        if (!siteToast) {
+            siteToast = document.createElement('div');
+            siteToast.id = 'siteToast';
+            siteToast.className = 'site-toast';
+            siteToast.setAttribute('role', 'status');
+            siteToast.setAttribute('aria-live', 'polite');
+            document.body.appendChild(siteToast);
+        }
+        siteToast.textContent = message;
+        window.requestAnimationFrame(function () { siteToast.classList.add('show'); });
+        window.clearTimeout(siteToastTimer);
+        siteToastTimer = window.setTimeout(function () {
+            siteToast.classList.remove('show');
+        }, 1600);
+    }
+
+    Array.prototype.slice.call(document.querySelectorAll('.nav-login')).forEach(function (btn) {
+        btn.addEventListener('click', function () { showSiteToast('敬请期待'); });
+    });
+
     /* ---------- 网站建设提示条关闭（不缓存，刷新后重新显示） ---------- */
     var siteBanner = document.querySelector('.site-banner');
     var bannerClose = takeOver(document.getElementById('bannerClose'));
