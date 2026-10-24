@@ -1,0 +1,182 @@
+#!/usr/bin/env python3
+"""Build a production copy of the site for the web branch.
+
+Stage 1 (this script):
+- minify selected classic JS files with Closure Compiler (SIMPLE)
+- minify all site CSS with clean-css
+- rewrite HTML references to the .min files
+- copy the whole site into a staging directory
+- regenerate assets/deps/site-assets.json for the staged files
+- inject a build id into deps-sw.js cache name
+
+ESM page modules (assets/js/csr/**, assets/js/home/*, pages/**/*.js) are copied
+unchanged for now; bundling is a separate step.
+
+Usage:
+    CLOSURE_JAR=/tmp/closure-compiler.jar python3 .github/scripts/build-web.py --out /tmp/zzkxs-web-dist
+"""
+import argparse
+import hashlib
+import os
+import re
+import shutil
+import subprocess
+import sys
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[2]
+CLOSURE_JAR = Path(os.environ.get("CLOSURE_JAR", "/tmp/closure-compiler.jar"))
+
+# Classic scripts that can be minified safely before the module bundling step.
+CLASSIC_JS = [
+    "assets/js/index.js",
+    "assets/js/navbar.js",
+    "assets/js/setting.js",
+    "assets/js/formular/formular-store.js",
+    "assets/js/formular/formulas.js",
+    "assets/js/club-info/fill-club-info.js",
+    "assets/js/club-info/club-QRcode.js",
+]
+
+IGNORE_NAMES = {".git", ".github", "tools", "tech.md", "__pycache__"}
+
+
+def copy_site(out: Path):
+    if out.exists():
+        shutil.rmtree(out)
+    out.mkdir(parents=True)
+    for item in ROOT.iterdir():
+        if item.name in IGNORE_NAMES:
+            continue
+        target = out / item.name
+        if item.is_dir():
+            shutil.copytree(item, target, ignore=shutil.ignore_patterns("__pycache__", "*.pyc"))
+        else:
+            shutil.copy2(item, target)
+
+
+def run(cmd, **kwargs):
+    print("+", " ".join(str(x) for x in cmd))
+    subprocess.run([str(x) for x in cmd], check=True, **kwargs)
+
+
+def minify_js(out: Path):
+    results = []
+    for rel in CLASSIC_JS:
+        src = out / rel
+        if not src.exists():
+            print("skip missing", rel)
+            continue
+        dst = src.with_name(src.stem + ".min.js")
+        run([
+            "java", "-jar", CLOSURE_JAR,
+            "--js", src,
+            "--compilation_level", "SIMPLE",
+            "--language_in", "ECMASCRIPT_2020",
+            "--language_out", "ECMASCRIPT_2020",
+            "--warning_level", "QUIET",
+            "--js_output_file", dst,
+        ])
+        results.append((rel, dst))
+    return results
+
+
+def minify_css(out: Path):
+    results = []
+    css_files = sorted(p for p in out.rglob("*.css") if ".min." not in p.name)
+    for src in css_files:
+        dst = src.with_name(src.stem + ".min.css")
+        run(["npx", "--yes", "clean-css-cli", "-O1", "-o", str(dst), str(src)])
+        results.append((str(src.relative_to(out)), dst))
+    return results
+
+
+def rewrite_html(out: Path, js_results, css_results):
+    # rel source path -> rel min path
+    js_map = {rel.replace("\\", "/"): str(dst.relative_to(out)).replace("\\", "/") for rel, dst in js_results}
+    css_map = {rel.replace("\\", "/"): str(dst.relative_to(out)).replace("\\", "/") for rel, dst in css_results}
+
+    count = 0
+    for page in out.rglob("*.html"):
+        text = page.read_text(encoding="utf-8")
+        original = text
+        for src, dst in js_map.items():
+            text = text.replace(src, dst)
+        for src, dst in css_map.items():
+            text = text.replace(src, dst)
+        if text != original:
+            page.write_text(text, encoding="utf-8", newline="\n")
+            count += 1
+    return count
+
+
+def build_id():
+    try:
+        rev = subprocess.check_output(["git", "rev-parse", "--short", "HEAD"], cwd=ROOT, text=True).strip()
+    except Exception:
+        rev = "nogit"
+    return rev[:12]
+
+
+def update_sw(out: Path, bid: str):
+    sw = out / "deps-sw.js"
+    if not sw.exists():
+        return
+    text = sw.read_text(encoding="utf-8")
+    text = re.sub(r"var SITE_ASSETS_CACHE = 'zzkxs-assets-[^']+';",
+                  f"var SITE_ASSETS_CACHE = 'zzkxs-assets-{bid}';", text)
+    sw.write_text(text, encoding="utf-8", newline="\n")
+
+
+def generate_site_assets(out: Path, bid: str):
+    assets = []
+    for p in out.rglob("*"):
+        if not p.is_file():
+            continue
+        rel = "/" + p.relative_to(out).as_posix()
+        if not rel.endswith((".js", ".css")):
+            continue
+        if rel.startswith("/assets/vendor/") or rel in ("/deps-sw.js", "/assets/deps/loader.js"):
+            continue
+        # Prefer minified sibling over source for classic assets.
+        if ".min." not in rel:
+            sibling = p.with_name(p.stem + ".min" + p.suffix)
+            if sibling.exists():
+                continue
+        assets.append(rel)
+    assets = sorted(set(assets))
+    data = {
+        "schema": 1,
+        "build": bid,
+        "note": "production JS/CSS precache list generated by tools/build-web.py",
+        "assets": assets,
+    }
+    manifest = out / "assets" / "deps" / "site-assets.json"
+    manifest.parent.mkdir(parents=True, exist_ok=True)
+    import json
+    manifest.write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8", newline="\n")
+    return assets
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--out", default="/tmp/zzkxs-web-dist")
+    ap.add_argument("--skip-css", action="store_true")
+    args = ap.parse_args()
+    out = Path(args.out)
+    if not CLOSURE_JAR.exists():
+        raise SystemExit(f"找不到 Closure jar：{CLOSURE_JAR}（设置 CLOSURE_JAR）")
+    copy_site(out)
+    print("copied ->", out)
+    js_results = minify_js(out)
+    css_results = [] if args.skip_css else minify_css(out)
+    pages = rewrite_html(out, js_results, css_results)
+    bid = build_id()
+    update_sw(out, bid)
+    assets = generate_site_assets(out, bid)
+    print(f"js minified={len(js_results)} css minified={len(css_results)} html rewritten={pages}")
+    print(f"site-assets={len(assets)} build={bid} out={out}")
+
+
+if __name__ == "__main__":
+    main()
