@@ -84,7 +84,7 @@ jobs:
         run: python3 .github/scripts/build.py --out dist --minify
 
       - name: Compile service worker (Closure SIMPLE)
-        run: CLOSURE_JAR=/tmp/closure-compiler.jar python3 tools/build-sw.py --out dist
+        run: CLOSURE_JAR=/tmp/closure-compiler.jar python3 .github/scripts/build-sw.py --out dist
 
       - name: Publish to web branch
         env:

@@ -228,7 +228,7 @@ def minify_classic(out, jar, workers=2):
         if rel.startswith('assets/vendor/') or rel.endswith('.min.js') or rel.endswith('.bundle.min.js'):
             continue
         if rel == 'deps-sw.js':
-            continue                                  # SW 由 tools/build-sw.py 处理
+            continue                                  # SW 由 .github/scripts/build-sw.py 处理
         text = path.read_text(encoding='utf-8', errors='replace')
         if ESM_RE.search(text):
             continue                                  # ESM 走打包

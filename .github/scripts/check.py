@@ -17,7 +17,7 @@ def main():
 
     if args.build:
         subprocess.run([sys.executable, str(ROOT / '.github/scripts/build.py'), '--out', args.dist, '--minify'], check=True, cwd=ROOT)
-        subprocess.run([sys.executable, str(ROOT / 'tools/build-sw.py'), '--out', args.dist], check=True, cwd=ROOT)
+        subprocess.run([sys.executable, str(ROOT / '.github/scripts/build-sw.py'), '--out', args.dist], check=True, cwd=ROOT)
 
     cmd = ['node', str(ROOT / '.github/scripts/check-site.js'), '--dist', str(ROOT / args.dist)]
     if args.browser:

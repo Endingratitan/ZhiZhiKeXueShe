@@ -33,7 +33,7 @@ assets/vendor/
 ## 缓存策略（重要）
 
 1. **Service Worker（v4 单缓存）**
-   - 源文件是仓库根 `deps-sw.js`；构建时由 `tools/build-sw.py` 用 Closure SIMPLE 压缩为 **`deps-sw.min.js`**（web 分支只发布它），`assets/deps/loader.js` 注册 `deps-sw.min.js?v=<vendor 版本@来源>`。
+   - 源文件是仓库根 `deps-sw.js`；构建时由 `.github/scripts/build-sw.py` 用 Closure SIMPLE 压缩为 **`deps-sw.min.js`**（web 分支只发布它），`assets/deps/loader.js` 注册 `deps-sw.min.js?v=<vendor 版本@来源>`。
    - 只有一个 Cache Storage：**`zzkxs-cache-v4`**；**HTML 不拦截**（始终走网络，交给发布体系），其余非 HTML 全部缓存：
      - URL 带 `?v=`（版本化）→ 视为不可变：命中即返回，不再后台刷新；
      - 其它（图片/字体/JSON/MD、loader、deps.json）→ 缓存优先 + **30 分钟静默刷新**；
@@ -87,5 +87,5 @@ vendor 的**版本、来源、预缓存清单**集中在 `assets/deps/deps.json`
 2. 桶开 **CORS**（`Access-Control-Allow-Origin` 站点域名）——跨域缓存必需。
 3. 把 `deps.json` 的 `source` 改成 `"oss"`。
 4. **在 `deps-sw.js` 把 `CROSS.corsFetch` 置为 `true`**（跨域改用 CORS 拉取；opaque 响应默认不入缓存）。
-5. 重新构建（`tools/build-sw.py`）生成 `deps-sw.min.js`；loader 的 base 自动跟随 `deps.json`，标记含 source 自动失效。
+5. 重新构建（`.github/scripts/build-sw.py`）生成 `deps-sw.min.js`；loader 的 base 自动跟随 `deps.json`，标记含 source 自动失效。
 6. 验证：DevTools → Application → Service Workers / Cache Storage（应只有一个 `zzkxs-cache-v4`）。
