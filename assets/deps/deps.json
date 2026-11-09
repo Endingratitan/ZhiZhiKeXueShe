@@ -7,8 +7,7 @@
     "cacheSeconds": 23328000,
     "precache": [
       "katex.js",
-      "katex.css",
-      "hljs.js"
+      "katex.css"
     ]
   },
   "source": "local",
@@ -33,7 +32,11 @@
     },
     "hljs": {
       "version": "11.12.0",
-      "js": "hljs/highlight.min.js"
+      "js": "hljs/highlight.min.js",
+      "css": [
+        "hljs/styles/github.min.css",
+        "hljs/styles/github-dark.min.css"
+      ]
     }
   }
 }

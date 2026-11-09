@@ -1,0 +1,111 @@
+name: Build and deploy (main -> web)
+
+# 在 push 到 main 时运行：Ubuntu runner → 生成发布产物 → 强推到 web 分支
+# 产物只包含站点文件（不含 tools/.github/tech.md），并带 .nojekyll。
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'assets/**'
+      - 'pages/**'
+      - 'articles/**'
+      - '*.html'
+      - 'deps-sw.js'
+      - 'tools/**'
+      - '.github/scripts/**'
+      - '.github/workflows/build-web.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: build-web
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Setup Java (Closure Compiler)
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Cache Closure Compiler
+        uses: actions/cache@v4
+        with:
+          path: /tmp/closure-compiler.jar
+          key: closure-compiler-v20240317
+
+      - name: Download Closure Compiler
+        run: |
+          if [ ! -s /tmp/closure-compiler.jar ]; then
+            curl -fsSL -o /tmp/closure-compiler.jar \
+              https://repo1.maven.org/maven2/com/google/javascript/closure-compiler/v20240317/closure-compiler-v20240317.jar
+          fi
+
+      - name: Setup Node (esbuild / clean-css)
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Cache npm
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: npm-buildtools-${{ runner.os }}
+
+      - name: Install build tools (outside workspace)
+        run: |
+          npm i --prefix /tmp/buildtools --no-audit --no-fund \
+            esbuild@0.23.0 clean-css@5.3.3
+
+      - name: Check source (no ?v=, references valid, position rules)
+        run: python3 .github/scripts/build.py --check
+
+      - name: Build dist (minify + bundle + prune + stamp + verify)
+        env:
+          CLOSURE_JAR: /tmp/closure-compiler.jar
+          ESBUILD_BIN: /tmp/buildtools/node_modules/.bin/esbuild
+          NODE_PATH: /tmp/buildtools/node_modules
+        run: python3 .github/scripts/build.py --out dist --minify
+
+      - name: Compile service worker (Closure SIMPLE)
+        run: CLOSURE_JAR=/tmp/closure-compiler.jar python3 tools/build-sw.py --out dist
+
+      - name: Publish to web branch
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          REMOTE="https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          cd dist
+          rm -rf .git
+          git init -q
+          git checkout -q -b web
+          git add -A
+          # 与远端 web 的树比较：完全一致则跳过部署（避免无意义提交与重复发布）
+          if git fetch -q --depth=1 "$REMOTE" web 2>/dev/null; then
+            if git diff --cached --quiet FETCH_HEAD; then
+              echo "产物与 web 分支一致，跳过部署"
+              exit 0
+            fi
+          fi
+          git -c user.name='github-actions[bot]' \
+              -c user.email='github-actions[bot]@users.noreply.github.com' \
+              commit -qm "build: ${GITHUB_SHA::7} $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          git push -q --force "$REMOTE" HEAD:web
+          echo "已发布到 web 分支"

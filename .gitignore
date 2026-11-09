@@ -2,3 +2,5 @@
 
 /tools/
 /defualt-public/
+.checkprofile*
+__pycache__/

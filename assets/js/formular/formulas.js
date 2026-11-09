@@ -109,8 +109,10 @@
        一、常量
        ============================================================ */
 
-    /* KaTeX CDN（版本锁定，防止 CDN 自动升大版本导致行为变化） */
-    var KATEX_VERSION = '0.16.21';
+    /* KaTeX CDN（版本锁定，防止 CDN 自动升大版本导致行为变化）
+       ⚠ 必须与 assets/deps/deps.json 的 deps.katex.version（本地 vendor 版本）保持一致，
+         否则本地 vendor 加载失败回退 CDN 时会出现排版/样式差异。 */
+    var KATEX_VERSION = '0.19.0';
     var KATEX_JS = 'https://cdn.jsdelivr.net/npm/katex@' + KATEX_VERSION + '/dist/katex.min.js';
     var KATEX_CSS = 'https://cdn.jsdelivr.net/npm/katex@' + KATEX_VERSION + '/dist/katex.min.css';
 

@@ -2,8 +2,15 @@
    致知科学社 · 第三方依赖加载/预热器（assets/deps/loader.js）
    读取同目录 deps.json（vendor 清单/来源/缓存时长），提供：
      ZZKXS.deps.katex() / hljs() / warm() / state() / ready
-   缓存：Service Worker（/deps-sw.js，9 个月、前端可控）为主；
+   缓存：Service Worker（/deps-sw.js）为主；策略见该文件：
+         HTML 不拦截、其余缓存 + 30 分钟静默刷新（URL 带 ?v= 视为不可变）。
    SW 不可用时只做按需加载（不预热），页面功能不受影响。
+   hljs：不进 SW 预缓存，进入站点后空闲时静默下载一次（7 天内不重复）。
+   控制权：已受控 → 请求走 SW 缓存；未受控 → 立即直连（HTTP 缓存/网络兜底），
+           SW 在后台安装，不阻塞等待（旧实现 waitController 最多白等 3s）。
+   预加载：宽屏 && 本页引了公式流脚本时，尽早用 <link rel=preload>
+           把 KaTeX CSS/JS 的下载提前（见 preloadVendor，条件严格，非同源不预载）；
+   加载：CSS 与 JS **并行**请求，均完成后再 resolve（避免慢网多付一个 RTT）。
    清单读不到时用下方 DEFAULT_MANIFEST 兜底。
    ============================================================ */
 (function (global, document) {
@@ -11,7 +18,7 @@
 
     var DEFAULT_MANIFEST = {
         schema: 1, browserCacheSeconds: 23328000,
-        serviceWorker: { enabled: true, cacheSeconds: 23328000, precache: ['katex.js', 'katex.css', 'hljs.js'] },
+        serviceWorker: { enabled: true, cacheSeconds: 23328000, precache: ['katex.js', 'katex.css'] },
         source: 'local',
         sources: {
             local: { base: '../vendor/', swCache: true },
@@ -19,7 +26,7 @@
         },
         deps: {
             katex: { version: '0.19.0', js: 'katex/katex.min.js', css: ['katex/katex.min.css'] },
-            hljs: { version: '11.12.0', js: 'hljs/highlight.min.js' }
+            hljs: { version: '11.12.0', js: 'hljs/highlight.min.js', css: ['hljs/styles/github.min.css', 'hljs/styles/github-dark.min.css'] }
         }
     };
 
@@ -183,6 +190,71 @@
         } catch (e) { /* 隐私模式/配额不致命 */ }
     }
 
+    /* ---------- hljs 静默下载（与 KaTeX 同一套 vendor 配置，只是不预缓存） ----------
+       hljs 不进入 SW install 预缓存（省首装 126 KB）；进入站点后空闲时补缓存。
+       是否需要补：用 caches.match 判断"缓存里是否已有"，缺了才补；
+       失败则退避 1 小时，避免网络故障时每次进站都重试。 */
+    var HLJS_RETRY_KEY = 'zzkxs.deps.hljs.retry';
+    var HLJS_RETRY_MS = 60 * 60 * 1000;
+
+    function readHljsRetry() {
+        try { return JSON.parse(global.localStorage.getItem(HLJS_RETRY_KEY) || 'null'); } catch (e) { return null; }
+    }
+    function writeHljsRetry(at) {
+        try { global.localStorage.setItem(HLJS_RETRY_KEY, JSON.stringify({ at: at })); } catch (e) { /* 忽略 */ }
+    }
+    function clearHljsRetry() {
+        try { global.localStorage.removeItem(HLJS_RETRY_KEY); } catch (e) { /* 忽略 */ }
+    }
+
+    function hljsUrls(cfg) {
+        var d = cfg && cfg.deps && cfg.deps.hljs;
+        if (!d || !d.js) { return []; }
+        var urls = [depUrl(d, d.js)];
+        (d.css || []).forEach(function (rel) { urls.push(depUrl(d, rel)); });
+        return urls;
+    }
+
+    function prefetchHljs(cfg) {
+        var urls = hljsUrls(cfg);
+        if (!urls.length) { return Promise.resolve(false); }
+        var conn = global.navigator && global.navigator.connection;
+        if (conn && conn.saveData) { return Promise.resolve(false); }
+
+        var retry = readHljsRetry();
+        if (retry && (Date.now() - retry.at) < HLJS_RETRY_MS) { return Promise.resolve(false); }
+
+        /* 缓存里已有全部文件 → 不再打扰（不依赖 TTL） */
+        var hasCaches = !!(global.caches && typeof global.caches.match === 'function');
+        var probe = hasCaches
+            ? Promise.all(urls.map(function (u) { return global.caches.match(u).catch(function () { return null; }); }))
+            : Promise.resolve(null);
+
+        return probe.then(function (hits) {
+            if (hits && hits.every(Boolean)) { return false; }
+            return new Promise(function (resolve) {
+                var later = function () {
+                    global.setTimeout(function () {
+                        Promise.all(urls.map(function (url) {
+                            var same = true;
+                            try { same = new URL(url).origin === global.location.origin; } catch (e) { same = true; }
+                            return global.fetch(url, {
+                                cache: 'default',
+                                mode: same ? 'same-origin' : 'cors',
+                                credentials: same ? 'same-origin' : 'omit'
+                            }).then(function (res) { return !!(res && res.ok); }).catch(function () { return false; });
+                        })).then(function (oks) {
+                            if (oks.every(Boolean)) { clearHljsRetry(); } else { writeHljsRetry(Date.now()); }
+                            resolve(oks.every(Boolean));
+                        });
+                    }, 1200);
+                };
+                if (global.requestIdleCallback) { global.requestIdleCallback(later, { timeout: 4000 }); }
+                else { global.setTimeout(later, 2500); }
+            });
+        });
+    }
+
     /* ---------- Service Worker ---------- */
 
     function swVersionKey(cfg) {
@@ -194,7 +266,7 @@
     function ensureSw(cfg) {
         if (!sw.supported || !cfg.serviceWorker.enabled) { return Promise.resolve(false); }
         if (sw.ready) { return sw.ready; }
-        sw.ready = global.navigator.serviceWorker.register(ROOT + 'deps-sw.js?v=' + swVersionKey(cfg), { scope: '/' })
+        sw.ready = global.navigator.serviceWorker.register(ROOT + 'deps-sw.min.js?v=' + swVersionKey(cfg), { scope: '/' })
             .then(function () { return global.navigator.serviceWorker.ready.then(function () { return true; }); })
             .catch(function (e) { log('SW register failed', e && e.message); sw.ready = null; return false; });
         return sw.ready;
@@ -228,6 +300,7 @@
 
         warmPromise = ready.then(function () {
             var cfg = state.manifest;
+            prefetchHljs(cfg);   // 静默下载 hljs（不阻塞、失败忽略）
             var useSw = cfg.serviceWorker.enabled && sw.supported && cfg.sourceCfg.swCache !== false;
             if (!useSw) { state.lastWarm = { skipped: 'no-sw' }; return state.lastWarm; }
             var marker = readMarker();
@@ -304,14 +377,30 @@
             if (!dep) { return false; }
             if (GLOBALS[kind]()) { return true; }
             var useSw = cfg.serviceWorker.enabled && sw.supported && cfg.sourceCfg.swCache !== false;
-            var before = useSw
-                ? ensureSw(cfg).then(function (ok) { return ok ? waitController(3000) : false; })
-                : Promise.resolve(false);
+            /* 2A：不阻塞等待 SW 控制权。
+               - 已受控 → 直接注入，请求走 SW 缓存（cache-first）；
+               - 未受控（首访 / DevTools 绕过 SW / 隐私模式）→ 立即注入，
+                 由浏览器 HTTP 缓存或网络兜底，同时后台注册 SW，
+                 装好后本次之后的页面即可命中缓存。
+               旧实现是 waitController(3000)：无 SW 场景白等最多 3s（实测 3.2s）。 */
+            var before;
+            if (!useSw) {
+                before = Promise.resolve(false);
+            } else if (global.navigator.serviceWorker.controller) {
+                before = Promise.resolve(true);
+            } else {
+                ensureSw(cfg);                      // 后台安装，不 await
+                before = Promise.resolve(false);
+            }
             return before.then(function () {
-                return Promise.all((dep.css || []).map(function (rel) { return injectCss(depUrl(dep, rel)); }));
-            }).then(function () {
-                return injectScript(depUrl(dep, dep.js), false);
-            }).then(function (jsOk) {
+                /* CSS 与 JS **并行**请求：两者互不依赖（JS 执行时不渲染公式，
+                   真正渲染发生在 load() resolve 之后，那时 CSS 也已就位）。
+                   旧实现是"等 CSS 全部加载完再发 JS"，在慢网下白白多付一个 RTT。 */
+                var cssJob = Promise.all((dep.css || []).map(function (rel) { return injectCss(depUrl(dep, rel)); }));
+                var jsJob = injectScript(depUrl(dep, dep.js), false);
+                return Promise.all([cssJob, jsJob]);
+            }).then(function (results) {
+                var jsOk = results[1];
                 var ok = jsOk && GLOBALS[kind]();
                 if (!ok) { loadPromises[kind] = null; }
                 return ok;
@@ -321,6 +410,65 @@
     }
 
     /* ---------- 自动预热 ---------- */
+
+    /* ---------- 提前预加载（preload 提示，不进阻塞链）----------
+       目的：KaTeX 真正被请求要等 formulas.js 的启动链（IndexedDB 读取 →
+       deps.json → SW 就绪），而本脚本在 body 末尾执行、清单又已并行取回，
+       可以更早把 CSS/JS 的下载提前发起，与页面后续脚本/CSS/字体加载重叠。
+       触发条件：
+         - 页面明确声明需要 → 在 loader.js 的 <script> 上写 data-preload="katex"
+           （不能用"检测 formulas.js 标签"：本脚本执行时该标签尚未被解析）；
+         - 非 file://、非 saveData、warmMode 未关；
+         - 视口 ≥1080px（公式流只在这个宽度显示）；
+         - vendor 与当前站点同源（跨域时 preload 与普通 <script> 的
+           CORS 模式不一致，会产生"预加载未被使用"的重复请求，故跳过）；
+         - KaTeX 尚未在内存中。 */
+    var preloadMode = String((self && self.getAttribute('data-preload')) || '').toLowerCase();
+    function wideEnough() {
+        try { return !!(global.matchMedia && global.matchMedia('(min-width: 1080px)').matches); }
+        catch (e) { return false; }
+    }
+    function saveDataOn() {
+        var conn = global.navigator && global.navigator.connection;
+        return !!(conn && conn.saveData);
+    }
+
+    var preloadStarted = false;
+    function preloadVendor() {
+        if (preloadStarted) { return; }
+        preloadStarted = true;
+        if (warmMode === 'off' || warmMode === 'none') { return; }
+        try {
+            if (!global.location || global.location.protocol === 'file:') { return; }
+        } catch (e) { return; }
+        if (!global.fetch || !document.head) { return; }
+        if (preloadMode !== 'katex') { return; }   // 仅页面显式声明时才预载
+        if (saveDataOn() || !wideEnough()) { return; }
+
+        ready.then(function () {
+            var cfg = state.manifest;
+            var dep = cfg && cfg.deps && cfg.deps.katex;
+            if (!dep) { return; }
+            var jsUrl = depUrl(dep, dep.js);
+            var cssUrl = (dep.css && dep.css[0]) ? depUrl(dep, dep.css[0]) : '';
+            var sameOrigin = true;
+            try { sameOrigin = new URL(jsUrl).origin === global.location.origin; }
+            catch (e) { sameOrigin = true; }
+            if (!sameOrigin) { log('preload skipped (cross-origin vendor)'); return; }
+            if (GLOBALS.katex()) { return; }
+
+            function add(as, url) {
+                var l = document.createElement('link');
+                l.rel = 'preload';
+                l.as = as;
+                l.href = url;
+                document.head.appendChild(l);
+            }
+            if (cssUrl) { add('style', cssUrl); }
+            add('script', jsUrl);
+            log('preload katex', jsUrl);
+        });
+    }
 
     function scheduleWarm() {
         if (warmMode === 'off' || warmMode === 'none') { return; }
@@ -375,4 +523,5 @@
     });
 
     scheduleWarm();
+    preloadVendor();   // 早于 formulas.js 的启动链发起 KaTeX 预加载（条件见函数注释）
 })(window, document);

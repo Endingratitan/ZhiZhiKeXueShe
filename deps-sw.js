@@ -1,349 +1,352 @@
 /* ============================================================
-   致知科学社 · 缓存 Service Worker（/deps-sw.js，站点根）
-   两类缓存：
-   1) vendor（`/assets/vendor/` 或 deps.json 配置的跨域 base）：
-      cache-first 9 个月，响应带 `x-zzkxs-stored-at`，过期则回源并打新戳；
-   2) 站点 JS/CSS（同源，含版本查询参数）：安装时按 /assets/deps/site-assets.json
-      预下载；cache-first，保留 12 个月，9 个月后视为过期回源更新；
-      回源失败时在 12 个月保留期内继续用旧缓存。
-   3) 其他站点资源（同源 GET：HTML/JSON/MD 等）：**SWR**
-      先返回缓存（x-zzkxs-sw: swr-hit），同时后台回源更新；
-      图片/字体等二进制：cache-first，不后台刷新；
-   例外（不缓存，保证能及时更新）：/deps-sw.js、/assets/deps/loader.js、/assets/deps/deps.json。
-   由 assets/deps/loader.js 注册：/deps-sw.js?v=<versions>@<source>
+   致知科学社 · 缓存 Service Worker（v4，单缓存）
+   ------------------------------------------------------------
+   适用范围：**只处理非 HTML 请求**。HTML 文档（导航 / *.html）一概不拦截，
+             由站点的发布体系保证新鲜。
+   缓存：一个 Cache Storage：zzkxs-cache-v4
+         · URL 带 ?v=<版本>  → 视为不可变：命中即返回，永不后台刷新
+         · 其他非 HTML       → 缓存优先 + 30 分钟静默刷新 + 12 个月清理
+   预缓存：install 时读 /assets/deps/deps.json 的 serviceWorker.precache
+           列表（目前只有 katex.js / katex.css）；hljs 不预缓存，
+           由 loader 在进入站点后静默下载入缓存。
+   旧缓存：activate 时**不删**。等新缓存里预缓存清单全部到位（verify 通过）
+           才删旧缓存（zzkxs-vendor-* / zzkxs-assets-* / zzkxs-site-*），
+           期间未命中的请求会到旧缓存里找并"提升"进新缓存。
+   节流：完整性检查 + 清理最多每 5 分钟跑一次；清理分批（≤20 条/次），
+         全部在 waitUntil 里异步执行，不阻塞响应。
+   失败开放：任何异常都不影响请求（交给浏览器/网络）。
    ============================================================ */
 'use strict';
 
-var PREFIX = 'zzkxs-vendor-';
-var SITE_CACHE = 'zzkxs-site-v1';          // 站点资源缓存：跨 SW 版本保留
-var MANIFEST_PATH = '/assets/deps/deps.json';
-var DEFAULT_TTL_MS = 9 * 30 * 24 * 60 * 60 * 1000;   // ≈23328000 s
-var SITE_REVALIDATE_MS = 60 * 1000;                    // SWR 最短重验间隔（减少重复导航的后台请求）
-var SITE_ASSETS_CACHE = 'zzkxs-assets-v2';             // 本站 JS/CSS 缓存（资源变更时手动递增）
-var SITE_ASSETS_MANIFEST = '/assets/deps/site-assets.json';
-var ASSET_FRESH_MS = 9 * 30 * 24 * 60 * 60 * 1000;     // 9 个月：过期后回源更新
-var ASSET_RETAIN_MS = 12 * 30 * 24 * 60 * 60 * 1000;   // 12 个月：保留旧缓存的兜底期限
-var ASSET_CONCURRENCY = 6;
-var configPromise = null;
+var CACHE = 'zzkxs-cache-v4';
+var LEGACY_PREFIXES = ['zzkxs-vendor-', 'zzkxs-assets-', 'zzkxs-site-'];
+var MANIFEST_URL = '/assets/deps/deps.json';
+var META_PREFIX = '/__zzkxs__/';
+var META_PRECACHE = META_PREFIX + 'precache';
+var FRESH_MS = 30 * 60 * 1000;              // 静默刷新间隔
+var RETAIN_MS = 365 * 24 * 60 * 60 * 1000;  // 保留期（12 个月）
+var CHECK_MS = 5 * 60 * 1000;              // 检验/清理节流
+var PURGE_BATCH = 20;                       // 每次最多清理条目数
 
-var BINARY_RE = /\.(?:png|jpe?g|gif|webp|svg|ico|bmp|woff2?|ttf|otf|eot|mp4|webm|mp3|pdf|zip)$/i;
+var vendorBase = '';
+var precacheList = null;   // 绝对 URL 数组（带 ?v=）
+var lastCheck = 0;
+var refreshing = {};
 
-function isExcluded(pathname) {
-    return pathname === '/deps-sw.js' ||
-        pathname === '/assets/deps/loader.js' ||
-        pathname === '/assets/deps/deps.json';
+/* ---------- 跨域 vendor（OSS/CDN）预留接口 ----------
+   现状：vendor 走同源 assets/vendor/；跨域（deps.json 的 sources.oss）未启用。
+   启用时需要：
+     1) 让 fetch 采用 CORS 模式（否则 <script>/<link> 的 no-cors 请求得到 opaque 响应，
+        Cache Storage 无法可靠打戳/复用）；
+     2) 源站（bucket/CDN）返回 Access-Control-Allow-Origin；
+     3) 允许把 'cors' 类型响应写入缓存。
+   下面的开关就是接口：把 corsFetch 置 true 即可走 CORS 拉取并缓存，
+   acceptOpaque 保留给无法配置 CORS 的极端场景（opaque 无状态、无法校验）。
+   注意：改这里之前先确认 sources.oss.cors=true 且 CDN 已配好 CORS。 */
+var CROSS = {
+    corsFetch: false,      // 跨域 vendor 用 CORS 模式拉取（推荐开启方式）
+    acceptOpaque: false    // 是否允许缓存 opaque 响应（不推荐：无法打戳/判断状态）
+};
+
+/** 跨域请求的取数请求：同源原样返回；跨域且开启 corsFetch 时换成 CORS 请求 */
+function netRequest(req) {
+    var cors = true;
+    try { cors = new URL(req.url).origin !== self.location.origin; } catch (e) { cors = false; }
+    if (cors && CROSS.corsFetch) {
+        return new Request(req.url, { mode: 'cors', credentials: 'omit', cache: 'no-cache' });
+    }
+    return req;
 }
 
-function fetchJson(url) {
-    return fetch(new Request(url, { cache: 'no-cache', credentials: 'same-origin' }))
-        .then(function (r) { return (r && r.ok) ? r.json() : null; })
-        .catch(function () { return null; });
+/** 响应是否允许写入缓存（跨域 opaque 由 CROSS.acceptOpaque 决定） */
+function allowStore(res) {
+    if (!res) { return false; }
+    if (res.type === 'opaque') { return CROSS.acceptOpaque; }
+    return !!res.ok;
 }
 
-function buildConfig(m) {
-    m = (m && typeof m === 'object') ? m : {};
-    var deps = (m.deps && typeof m.deps === 'object') ? m.deps : {};
-    var srcName = m.source || 'local';
-    var sources = m.sources || {};
-    var src = sources[srcName] || sources.local || { base: '/assets/vendor/' };
-    var manifestUrl = self.location.origin + MANIFEST_PATH;
-    var base;
-    try { base = new URL(src.base || '/assets/vendor/', manifestUrl).href; }
-    catch (e) { base = self.location.origin + '/assets/vendor/'; }
-    if (base.charAt(base.length - 1) !== '/') { base += '/'; }
+/* ---------- 基础工具 ---------- */
 
-    var swCfg = m.serviceWorker || {};
-    var ttlSec = parseInt(swCfg.cacheSeconds || m.browserCacheSeconds || 23328000, 10);
-    if (!(ttlSec > 0)) { ttlSec = 23328000; }
+function cacheOpen() { return caches.open(CACHE); }
 
-    var tokens = (swCfg.precache && swCfg.precache.length) ? swCfg.precache : [];
-    var urls = [];
-    tokens.forEach(function (tok) {
-        var parts = String(tok).split('.');
-        var d = deps[parts[0]];
-        var rel = (parts[1] === 'css') ? (d && d.css && d.css[0]) : (d && d[parts[1]]);
-        if (d && rel) { urls.push(base + rel + '?v=' + encodeURIComponent(d.version || '0')); }
-    });
-
-    var params = null;
-    try { params = new URL(self.location.href).searchParams; } catch (e) { params = null; }
-    var cacheName = PREFIX + (params ? (params.get('v') || '0') : '0') + '-' + (params ? (params.get('s') || srcName) : srcName);
-
-    return { source: srcName, base: base, ttlMs: ttlSec * 1000, urls: urls, cacheName: cacheName, swCache: src.swCache !== false };
+function metaRequest(path) {
+    return new Request(self.location.origin + path);
 }
 
-function getConfig() {
-    if (configPromise) { return configPromise; }
-    configPromise = fetchJson(MANIFEST_PATH + '?ts=' + Date.now()).then(buildConfig);
-    return configPromise;
+function storedAt(res) {
+    var t = res && res.headers ? parseInt(res.headers.get('x-zzkxs-stored-at') || '0', 10) : 0;
+    return t > 0 ? t : 0;
 }
 
-/** 复制响应并写入时间戳/调试头 */
-function stamp(res, storedAt, state) {
+/** 复制响应并打上写入时间戳（Cache Storage 里靠它判断年龄） */
+function stamped(res, at) {
     return res.blob().then(function (body) {
         var headers = new Headers(res.headers);
-        if (storedAt) { headers.set('x-zzkxs-stored-at', String(storedAt)); }
-        if (state) { headers.set('x-zzkxs-sw', state); }
+        headers.set('x-zzkxs-stored-at', String(at));
         return new Response(body, { status: res.status, statusText: res.statusText, headers: headers });
     });
 }
-function fresh(res, ttlMs) {
-    var t = parseInt(res.headers.get('x-zzkxs-stored-at') || '0', 10);
-    return !!t && (Date.now() - t) < ttlMs;
+
+function hasVersion(req) {
+    try { return new URL(req.url).searchParams.has('v'); } catch (e) { return false; }
 }
 
-/** 跨域资源用 CORS 模式取（才能写进 Cache Storage；需要源站 CORS） */
-function netFetch(req, cfg) {
-    try {
-        var u = new URL(req.url);
-        if (u.origin !== self.location.origin && req.url.indexOf(cfg.base) === 0) {
-            return fetch(new Request(req.url, { mode: 'cors', credentials: 'omit', cache: 'no-cache' }));
-        }
-    } catch (e) { /* 交给普通 fetch */ }
-    return fetch(req);
+function isDocument(req, url) {
+    if (req.mode === 'navigate' || req.destination === 'document') { return true; }
+    return /\.html?$/i.test(url.pathname);
 }
 
-function handle(req, cfg) {
-    return caches.open(cfg.cacheName).then(function (cache) {
-        return cache.match(req).then(function (hit) {
-            if (hit && fresh(hit, cfg.ttlMs)) { return stamp(hit, null, 'hit'); }
-            return netFetch(req, cfg).then(function (res) {
-                if (!res || !res.ok) { return hit ? stamp(hit, null, 'stale') : res; }
-                return stamp(res, Date.now(), 'miss').then(function (stored) {
-                    return cache.put(req, stored.clone()).catch(function () { return null; })
-                        .then(function () { return stored; });
-                });
-            }).catch(function () {
-                return hit ? stamp(hit, null, 'offline') : new Response('', { status: 504, statusText: 'offline' });
+/* ---------- 清单（deps.json）与预缓存 ---------- */
+
+function loadManifest() {
+    return fetch(MANIFEST_URL, { cache: 'no-store' }).then(function (res) {
+        return res && res.ok ? res.json() : null;
+    }).then(function (m) {
+        if (!m || !m.deps) { return null; }
+        var srcName = m.source || 'local';
+        var src = (m.sources || {})[srcName] || { base: '/assets/vendor/' };
+        var base;
+        try { base = new URL(src.base, self.location.origin + MANIFEST_URL).href; }
+        catch (e) { base = self.location.origin + '/assets/vendor/'; }
+        if (base.charAt(base.length - 1) !== '/') { base += '/'; }
+        vendorBase = base;
+
+        /* 预缓存清单：deps.json 的 serviceWorker.precache（"库.字段"记号） */
+        var tokens = (m.serviceWorker && m.serviceWorker.precache) || [];
+        var urls = [];
+        tokens.forEach(function (tok) {
+            var parts = String(tok).split('.');
+            var d = m.deps[parts[0]];
+            if (!d) { return; }
+            var rel = parts[1] === 'css' ? (d.css && d.css[0]) : d[parts[1]];
+            if (!rel) { return; }
+            urls.push(base + rel + '?v=' + encodeURIComponent(d.version || '0'));
+        });
+        return urls;
+    }).catch(function () { return null; });
+}
+
+function savePrecache(urls) {
+    return cacheOpen().then(function (cache) {
+        var body = JSON.stringify(urls || []);
+        return cache.put(metaRequest(META_PRECACHE), new Response(body, {
+            headers: { 'content-type': 'application/json', 'x-zzkxs-stored-at': String(Date.now()) }
+        }));
+    }).catch(function () {});
+}
+
+function readPrecache() {
+    if (precacheList) { return Promise.resolve(precacheList); }
+    return cacheOpen().then(function (cache) {
+        return cache.match(metaRequest(META_PRECACHE)).then(function (res) {
+            return res ? res.json() : null;
+        });
+    }).then(function (urls) {
+        precacheList = Array.isArray(urls) ? urls : null;
+        return precacheList;
+    }).catch(function () { return null; });
+}
+
+function precache() {
+    return loadManifest().then(function (urls) {
+        if (!urls || !urls.length) { return null; }
+        precacheList = urls;
+        return savePrecache(urls).then(function () {
+            return cacheOpen().then(function (cache) {
+                var i = 0;
+                function step() {
+                    if (i >= urls.length) { return null; }
+                    var url = urls[i++];
+                    return cache.match(url).then(function (hit) {
+                        if (hit) { return null; }
+                        return fetch(url).then(function (res) {
+                            if (!res || !res.ok) { return null; }
+                            return stamped(res, Date.now()).then(function (s) {
+                                return cache.put(url, s).catch(function () {});
+                            });
+                        }).catch(function () { return null; });
+                    }).then(step);
+                }
+                return step();
             });
         });
     });
 }
 
-function wantsDebug(req) {
-    try { return new URL(req.url).searchParams.get('swrdebug') === '1'; } catch (e) { return false; }
-}
+/* ---------- 命中查找：新缓存 → 旧缓存（命中即提升） ---------- */
 
-/** 写入缓存前打上"最近检查时间"（用于最短重验间隔） */
-function withCheckedAt(res, ts) {
-    return res.blob().then(function (body) {
-        var headers = new Headers(res.headers);
-        headers.set('x-zzkxs-checked-at', String(ts));
-        return new Response(body, { status: res.status, statusText: res.statusText, headers: headers });
-    });
-}
-
-/** SWR：命中直接返回缓存（不复制 body），后台按最短间隔回源更新；网络失败保留旧缓存 */
-function swr(e, req) {
-    var debug = wantsDebug(req);
-    return caches.open(SITE_CACHE).then(function (cache) {
-        return cache.match(req).then(function (hit) {
-            var checkedAt = hit ? parseInt(hit.headers.get('x-zzkxs-checked-at') || '0', 10) : 0;
-            var needNet = !hit || (Date.now() - checkedAt) >= SITE_REVALIDATE_MS;
-            var netPromise = null;
-            if (needNet) {
-                netPromise = fetch(req).then(function (res) {
-                    if (!res || !res.ok) { return res; }
-                    return withCheckedAt(res, Date.now()).then(function (stored) {
-                        cache.put(req, stored.clone()).catch(function () { /* 配额/不透明响应等，忽略 */ });
-                        return stored;
+function lookup(cache, req) {
+    return cache.match(req).then(function (hit) {
+        if (hit) { return hit; }
+        return caches.keys().then(function (names) {
+            var legacy = names.filter(function (n) {
+                if (n === CACHE) { return false; }
+                for (var i = 0; i < LEGACY_PREFIXES.length; i++) {
+                    if (n.indexOf(LEGACY_PREFIXES[i]) === 0) { return true; }
+                }
+                return false;
+            });
+            var i = 0;
+            function next() {
+                if (i >= legacy.length) { return null; }
+                var name = legacy[i++];
+                return caches.open(name).then(function (c) { return c.match(req); }).then(function (res) {
+                    if (!res) { return next(); }
+                    /* 提升进新缓存：保留旧时间戳，没有就按当前时间 */
+                    var at = storedAt(res) || Date.now();
+                    return stamped(res, at).then(function (s) {
+                        return cache.put(req, s.clone()).catch(function () { return null; }).then(function () { return s; });
                     });
-                }).catch(function () { return null; });
-                e.waitUntil(netPromise.catch(function () { /* 后台失败忽略 */ }));
-            }
-            if (hit) {
-                return debug ? stamp(hit, null, 'swr-hit') : hit;
-            }
-            return (netPromise || Promise.resolve(null)).then(function (res) {
-                if (!res) { return new Response('', { status: 504, statusText: 'offline' }); }
-                return debug ? stamp(res, null, 'swr-miss') : res;
-            });
-        });
-    });
-}
-
-/** 图片/字体等二进制：cache-first（文件名视为内容版本，不后台刷新） */
-function cacheFirstBinary(req) {
-    return caches.open(SITE_CACHE).then(function (cache) {
-        return cache.match(req).then(function (hit) {
-            if (hit) { return hit; }
-            return fetch(req).then(function (res) {
-                if (res && res.ok) { cache.put(req, res.clone()).catch(function () { }); }
-                return res;
-            });
-        });
-    });
-}
-
-function mapLimit(items, limit, fn) {
-    var index = 0;
-    var workers = [];
-    function next() {
-        if (index >= items.length) { return Promise.resolve(); }
-        var i = index++;
-        return Promise.resolve(fn(items[i], i)).then(function () {
-            return next();
-        }).catch(function () { return next(); });
-    }
-    for (var n = 0; n < Math.min(limit, items.length); n++) { workers.push(next()); }
-    return Promise.all(workers);
-}
-
-function assetAge(res) {
-    var t = parseInt(res.headers.get('x-zzkxs-stored-at') || '0', 10);
-    return t ? (Date.now() - t) : Infinity;
-}
-
-function assetCacheKey(req) {
-    try {
-        var u = new URL(req.url);
-        u.search = '';
-        u.hash = '';
-        return new Request(u.href);
-    } catch (e) {
-        return req;
-    }
-}
-
-function isSiteAsset(pathname) {
-    if (!/\.(?:js|css)$/i.test(pathname)) { return false; }
-    if (pathname.indexOf('/assets/vendor/') === 0) { return false; }
-    return !isExcluded(pathname);
-}
-
-function precacheSiteAssets() {
-    return fetchJson(SITE_ASSETS_MANIFEST + '?ts=' + Date.now()).then(function (data) {
-        var urls = (data && Array.isArray(data.assets)) ? data.assets : [];
-        if (!urls.length) { return null; }
-        return caches.open(SITE_ASSETS_CACHE).then(function (cache) {
-            return mapLimit(urls, ASSET_CONCURRENCY, function (url) {
-                var req = new Request(url, { cache: 'no-cache' });
-                return cache.match(req).then(function (hit) {
-                    if (hit && assetAge(hit) < ASSET_FRESH_MS) { return null; }
-                    return fetch(req).then(function (res) {
-                        if (!res || !res.ok) { return null; }
-                        return stamp(res, Date.now()).then(function (stored) {
-                            return cache.put(req, stored).catch(function () { return null; });
-                        });
-                    }).catch(function () { return null; });
                 });
+            }
+            return next();
+        });
+    });
+}
+
+/* ---------- 网络获取并写入缓存 ---------- */
+
+function fetchStore(cache, req, stale) {
+    return fetch(netRequest(req)).then(function (res) {
+        /* 跨域响应策略见 CROSS 预留接口：默认不缓存 opaque / 非 2xx */
+        if (!allowStore(res)) {
+            if (res && res.type === 'opaque' && CROSS.acceptOpaque) { return res; }
+            return stale || res;
+        }
+        return stamped(res, Date.now()).then(function (s) {
+            /* 等写入完成再返回：调用方（如脚本加载）之后立刻查缓存也能看到 */
+            return cache.put(req, s.clone()).catch(function () {}).then(function () { return s; });
+        });
+    }).catch(function () {
+        return stale || new Response('', { status: 504, statusText: 'offline' });
+    });
+}
+
+/* ---------- 静默刷新（30 分钟节流，inflight 去重） ---------- */
+
+function scheduleRefresh(cache, req, event) {
+    var key = req.url;
+    if (refreshing[key]) { return; }
+    refreshing[key] = true;
+    var job = fetch(netRequest(req)).then(function (res) {
+        if (!allowStore(res)) { return null; }
+        return stamped(res, Date.now()).then(function (s) {
+            return cache.put(req, s.clone()).catch(function () {});
+        });
+    }).catch(function () { return null; }).then(function () { delete refreshing[key]; });
+    if (event && event.waitUntil) {
+        try { event.waitUntil(job); return; } catch (e) { /* 继续走下面的兜底 */ }
+    }
+    job.then(function () {}, function () {});
+}
+
+/* ---------- 完整性校验 + 清理（节流 5 分钟，分批） ---------- */
+
+function checkAndClean() {
+    return readPrecache().then(function (urls) {
+        if (!urls || !urls.length) { return null; }        // 清单未知 → 不删任何旧缓存
+        return cacheOpen().then(function (cache) {
+            return Promise.all(urls.map(function (u) { return cache.match(u); })).then(function (hits) {
+                var complete = true;
+                for (var i = 0; i < hits.length; i++) { if (!hits[i]) { complete = false; break; } }
+                if (!complete) { return null; }             // 新缓存没齐 → 保留旧缓存
+                return deleteLegacy().then(function () { return purgeExpired(cache, PURGE_BATCH); });
             });
         });
     }).catch(function () { return null; });
 }
 
-function precacheVendor(cfg) {
-    if (!cfg.swCache || !cfg.urls.length) { return Promise.resolve(null); }
-    return caches.open(cfg.cacheName).then(function (cache) {
-        return Promise.all(cfg.urls.map(function (url) {
-            return cache.match(url).then(function (hit) {
-                if (hit && fresh(hit, cfg.ttlMs)) { return null; }
-                return netFetch(new Request(url), cfg).then(function (res) {
-                    if (!res || !res.ok) { return null; }
-                    return stamp(res, Date.now()).then(function (stored) {
-                        return cache.put(url, stored).catch(function () { return null; });
-                    });
-                }).catch(function () { return null; });
+function deleteLegacy() {
+    return caches.keys().then(function (names) {
+        var jobs = [];
+        names.forEach(function (n) {
+            if (n === CACHE) { return; }
+            for (var i = 0; i < LEGACY_PREFIXES.length; i++) {
+                if (n.indexOf(LEGACY_PREFIXES[i]) === 0) { jobs.push(caches.delete(n)); break; }
+            }
+        });
+        return Promise.all(jobs);
+    }).catch(function () {});
+}
+
+function purgeExpired(cache, limit) {
+    return cache.keys().then(function (keys) {
+        var todo = [];
+        for (var i = 0; i < keys.length && todo.length < limit; i++) {
+            if (keys[i].url.indexOf(META_PREFIX) === 0) { continue; }
+            todo.push(keys[i]);
+        }
+        return Promise.all(todo.map(function (req) {
+            return cache.match(req).then(function (res) {
+                if (res && Date.now() - storedAt(res) > RETAIN_MS) { return cache.delete(req); }
+                return null;
             });
         }));
-    });
+    }).catch(function () {});
 }
 
-function cleanupVendor(cfg) {
-    return caches.keys().then(function (keys) {
-        return Promise.all(keys.filter(function (k) {
-            return k.indexOf(PREFIX) === 0 && k !== cfg.cacheName;
-        }).map(function (k) { return caches.delete(k); }));
-    });
-}
-
-function cleanupSiteAssets() {
-    return caches.keys().then(function (keys) {
-        return Promise.all(keys.filter(function (k) {
-            return k.indexOf('zzkxs-assets-') === 0 && k !== SITE_ASSETS_CACHE;
-        }).map(function (k) { return caches.delete(k); }));
-    }).then(function () {
-        return caches.open(SITE_ASSETS_CACHE).then(function (cache) {
-            return cache.keys().then(function (keys) {
-                return Promise.all(keys.map(function (req) {
-                    return cache.match(req).then(function (res) {
-                        if (res && assetAge(res) > ASSET_RETAIN_MS) {
-                            return cache.delete(req);
-                        }
-                    });
-                }));
-            });
-        });
-    }).catch(function () { return null; });
-}
-
-function handleSiteAsset(req) {
-    var key = assetCacheKey(req);
-    return caches.open(SITE_ASSETS_CACHE).then(function (cache) {
-        return cache.match(key).then(function (hit) {
-            var age = hit ? assetAge(hit) : Infinity;
-            if (hit && age < ASSET_FRESH_MS) { return hit; }
-            return fetch(req).then(function (res) {
-                if (!res || !res.ok) {
-                    return (hit && age < ASSET_RETAIN_MS) ? hit : res;
-                }
-                return stamp(res, Date.now()).then(function (stored) {
-                    cache.put(key, stored.clone()).catch(function () { return null; });
-                    return stored;
-                });
-            }).catch(function () {
-                return (hit && age < ASSET_RETAIN_MS) ? hit : new Response('', { status: 504, statusText: 'offline' });
-            });
-        });
-    });
-}
-
-self.addEventListener('install', function (e) {
-    e.waitUntil(Promise.all([
-        getConfig().then(precacheVendor).catch(function () { return null; }),
-        precacheSiteAssets()
-    ]).then(function () { return self.skipWaiting(); }));
-});
-
-self.addEventListener('activate', function (e) {
-    e.waitUntil(Promise.all([
-        getConfig().then(cleanupVendor).catch(function () { return null; }),
-        cleanupSiteAssets()
-    ]).then(function () { return self.clients.claim(); }));
-});
-
-self.addEventListener('fetch', function (e) {
-    var req = e.request;
-    if (!req || req.method !== 'GET') { return; }
-    var url;
-    try { url = new URL(req.url); } catch (err) { return; }
-    if (req.headers.has('range')) { return; }
-
-    if (url.origin === self.location.origin) {
-        /* 1) vendor：cache-first 9 个月 */
-        if (url.pathname.indexOf('/assets/vendor/') === 0) {
-            e.respondWith(getConfig().then(function (cfg) { return handle(req, cfg); }));
-            return;
-        }
-        /* 2) 配置/SW/loader：不缓存，交给网络 */
-        if (isExcluded(url.pathname)) { return; }
-        /* 3) 本站 JS/CSS：缓存 12 个月，9 个月后过期回源 */
-        if (isSiteAsset(url.pathname)) {
-            e.respondWith(handleSiteAsset(req));
-            return;
-        }
-        /* 4) 图片/字体：cache-first */
-        if (BINARY_RE.test(url.pathname)) {
-            e.respondWith(cacheFirstBinary(req));
-            return;
-        }
-        /* 5) 其余站点资源：SWR */
-        e.respondWith(swr(e, req));
-        return;
+function maybeCheck(event) {
+    if (Date.now() - lastCheck < CHECK_MS) { return; }
+    lastCheck = Date.now();
+    var job = checkAndClean();
+    if (event && event.waitUntil) {
+        try { event.waitUntil(job); return; } catch (e) { /* 兜底 */ }
     }
+    job.then(function () {}, function () {});
+}
 
-    /* 跨域：只接管当前 vendor 来源（bucket 场景） */
-    e.respondWith(getConfig().then(function (cfg) {
-        return (cfg && req.url.indexOf(cfg.base) === 0) ? handle(req, cfg) : fetch(req);
-    }).catch(function () { return fetch(req); }));
+/* ---------- 请求处理 ---------- */
+
+function serve(event, req) {
+    return cacheOpen().then(function (cache) {
+        return lookup(cache, req).then(function (hit) {
+            if (!hit) { return fetchStore(cache, req, null); }
+            if (hasVersion(req)) { return hit; }                  // 不可变
+            var age = Date.now() - storedAt(hit);
+            if (age < FRESH_MS) { return hit; }                   // 30 分钟内不打扰
+            if (age < RETAIN_MS) {                                // 30 分钟~12 个月：先给旧值，后台刷新
+                scheduleRefresh(cache, req, event);
+                return hit;
+            }
+            return fetchStore(cache, req, hit);                   // 超过保留期
+        });
+    }).catch(function () { return fetch(req); });
+}
+
+self.addEventListener('install', function (event) {
+    event.waitUntil(
+        precache().catch(function () { return null; }).then(function () { return self.skipWaiting(); })
+    );
+});
+
+self.addEventListener('activate', function (event) {
+    event.waitUntil(
+        Promise.resolve()
+            .then(function () { return self.clients.claim(); })
+            .then(function () { return checkAndClean(); })
+            .catch(function () { return null; })
+    );
+});
+
+self.addEventListener('fetch', function (event) {
+    try {
+        var req = event.request;
+        if (!req || req.method !== 'GET') { return; }
+        if (req.headers && req.headers.get('range')) { return; }
+
+        var url;
+        try { url = new URL(req.url); } catch (e) { return; }
+        if (url.pathname === '/deps-sw.min.js' || url.pathname === '/deps-sw.js') { return; }  // SW 自身交给浏览器
+        if (isDocument(req, url)) { return; }                      // HTML 不拦截
+
+        if (url.origin === self.location.origin) {
+            maybeCheck(event);
+            event.respondWith(serve(event, req));
+            return;
+        }
+        if (vendorBase && req.url.indexOf(vendorBase) === 0) {      // 跨域 vendor（OSS 场景）
+            maybeCheck(event);
+            event.respondWith(serve(event, req));
+        }
+    } catch (err) { /* fail-open：不调用 respondWith，浏览器走网络 */ }
 });
