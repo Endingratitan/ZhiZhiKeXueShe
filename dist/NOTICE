@@ -1,0 +1,13 @@
+致知科学社网站
+Copyright 2024-2026 致知科学社及贡献者
+
+本项目的代码（HTML、CSS、JavaScript、构建脚本等）采用 Apache License 2.0 授权，
+完整条款见 LICENSE。
+
+网站文章、照片、插图、社徽、社团名称及其他非代码内容不适用 Apache License 2.0，
+版权归致知科学社及相应权利人所有，保留所有权利。详见 LICENSE-CONTENT。
+
+本项目包含的第三方组件遵循其各自许可证，主要包括：
+- KaTeX — MIT License — https://katex.org/
+- highlight.js — BSD 3-Clause License — https://highlightjs.org/
+- 其他 vendor 资源以 assets/vendor 内文件说明为准。

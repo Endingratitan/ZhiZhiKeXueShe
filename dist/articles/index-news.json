@@ -1,0 +1,12 @@
+{
+  "schema": 1,
+  "column": "社团动态",
+  "generated_at": "2026-10-24T18:34:58Z",
+  "important_index": "articles/news-important.json",
+  "articles": [
+    "2026-cupt",
+    "2026-science-quiz",
+    "2025-cupt",
+    "2024-cupt"
+  ]
+}

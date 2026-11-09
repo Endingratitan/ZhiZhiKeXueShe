@@ -1,0 +1,19 @@
+{
+  "schema": 1,
+  "title": "湖南师范大学第三届校 CUPT 表演赛",
+  "summary": "10 月 17 日下午，致知科学社在格物楼 109 举办第三届校 CUPT 表演赛，以“秋叶硬币”为题完整演示了 CUPT 的比赛流程。",
+  "date": "2026-10-17",
+  "updated": "2026-10-22",
+  "authors": ["叶嘉毅", "杨家佳"],
+  "editors": [],
+  "column": "社团动态",
+  "tags": ["CUPT", "流体力学", "秋叶硬币"],
+  "cover": "figs/01-discussion.webp",
+  "license": "",
+  "draft": false,
+  "important": "CUPT",
+  "source": {
+    "name": "物理与电子科学学院 学工动态《物电院致知科学社举办湖南师范大学第三届校CUPT表演赛》",
+    "url": "https://wdy.hunnu.edu.cn/info/1121/9721.htm"
+  }
+}
